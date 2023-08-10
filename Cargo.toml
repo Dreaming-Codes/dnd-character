@@ -31,3 +31,5 @@ default = ["api-rustls", "serde"]
 api = ["dep:cynic-codegen", "dep:cynic", "dep:reqwest"]
 api-rustls = ["api", "reqwest/rustls-tls"]
 serde = ["dep:serde", "dep:serde_json"]
+#temp fix for old version of cargo that shuttle uses
+reqwest = ["dep:reqwest"]
