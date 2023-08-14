@@ -101,7 +101,7 @@ mod race_query {
 
 
 impl Character {
-    pub async fn new(main_class: String, name: String, age: u16, race_index: String, subrace_index: String, alignment_index: String, description: String, background_index: String) -> Result<Self, NewError> {
+    pub async fn new(main_class: String, name: String, age: u16, race_index: String, subrace_index: String, alignment_index: String, description: String, background_index: String, background_description: String) -> Result<Self, NewError> {
         Ok(Self {
             classes: Classes::new(main_class),
             name,
@@ -111,6 +111,7 @@ impl Character {
             alignment_index,
             description,
             background_index,
+            background_description,
             experience_points: 0,
             money: 0,
             inventory: Vec::new(),
