@@ -39,6 +39,8 @@ pub struct Character {
     pub description: String,
     /// Index from https://www.dnd5eapi.co/api/backgrounds/
     pub background_index: String,
+    /// Background description
+    pub background_description: String,
 
     experience_points: u32,
 
