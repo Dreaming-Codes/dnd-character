@@ -38,7 +38,7 @@ async fn ability_api_test(){
     let tasks = abilities.iter().map(|ability| {
         let ability = ability.clone();
         async move {
-            assert_eq!(ability.full_name, Ability(ability.index, AbilityScore::new(0, false)).full_name().await.expect("Error in API Request"));
+            assert_eq!(ability.full_name, Ability::full_name(ability.index).await.expect("Error in API Request"));
         }
     });
 

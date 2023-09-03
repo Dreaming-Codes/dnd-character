@@ -1,4 +1,4 @@
-use cynic::http::{CynicReqwestError, ReqwestExt};
+use cynic::http::{ReqwestExt};
 use cynic::QueryBuilder;
 use reqwest::Client;
 use crate::{Abilities, Ability};
@@ -8,9 +8,9 @@ use crate::api::shared::ApiError;
 use super::shared::schema;
 
 impl Ability {
-    pub async fn full_name(&self) -> Result<String, ApiError> {
+    pub async fn full_name(index: String) -> Result<String, ApiError> {
         let op = AbilityFullNameQuery::build(AbilityFullNameQueryVariables {
-            index: self.0.clone()
+            index
         });
         Ok(Client::new()
             .post("https://www.dnd5eapi.co/graphql")
@@ -62,6 +62,6 @@ impl Abilities {
             .data.ok_or(ApiError::Schema)?
             .ability_scores.ok_or(ApiError::Schema)?;
 
-        Ok(Self(abilities.iter().map(|ability| Ability(ability.index.clone(), AbilityScore::new(0, false))).collect()))
+        Ok(Self(abilities.iter().map(|ability| (ability.index.clone(),Ability(AbilityScore::new(0, false)))).collect()))
     }
 }
