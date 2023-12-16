@@ -140,7 +140,7 @@ impl Character {
     pub async fn rich_print(&self) -> Result<String, ApiError> {
         let spellcasting_slots = self.get_spellcasting_slots().await?;
 
-        let character = json!(self);
+        let mut character = json!(self);
 
         character["spellcasting_slots"] = json!(spellcasting_slots);
 
