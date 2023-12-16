@@ -127,7 +127,7 @@ impl Character {
     pub async fn get_spellcasting_slots(&self) -> Result<HashMap<String, LevelSpellcasting>, ApiError> {
         let mut spellcasting_slots = HashMap::new();
         for class in self.classes.0.iter() {
-            let spellcasting_slots_class = class.get_spellcasting_slots().await?;
+            let spellcasting_slots_class = class.1.get_spellcasting_slots().await?;
             spellcasting_slots.insert(class.0.clone(), spellcasting_slots_class);
         }
         Ok(spellcasting_slots)

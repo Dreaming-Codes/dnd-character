@@ -115,7 +115,7 @@ impl CustomLevelFeature {
 impl Class {
     pub async fn get_spellcasting_ability_index(&self) -> Result<String, ApiError> {
         let op = SpellcastingAbilityQuery::build(SpellcastingAbilityQueryVariables {
-            index: Some(self.0.clone())
+            index: Some(self.index().to_string())
         });
 
         let ability_index = Client::new()
@@ -131,7 +131,7 @@ impl Class {
 
     pub async fn get_spellcasting_slots(&self) -> Result<LevelSpellcasting, ApiError> {
         let op = SpellcastingQuery::build(SpellcastingQueryVariables {
-            index: Some(format!("{}-{}", self.0, self.1.level))
+            index: Some(format!("{}-{}", self.index(), self.1.level))
         });
 
         let spellcasting_slots = Client::new()
@@ -146,7 +146,7 @@ impl Class {
 
     pub async fn set_level(&mut self, new_level: u8) -> Result<(), ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
-            class: Some(StringFilter(self.0.clone())),
+            class: Some(StringFilter(self.index().to_string())),
             level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", self.1.level, new_level)))
         });
 
@@ -170,7 +170,7 @@ impl Class {
 
     pub async fn get_levels_features(&self, from_level: Option<u8>) -> Result<Vec<String>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
-            class: Some(StringFilter(self.0.clone())),
+            class: Some(StringFilter(self.index().to_string())),
             level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", from_level.unwrap_or(0), self.1.level)))
         });
 
