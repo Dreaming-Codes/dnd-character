@@ -8,16 +8,12 @@ use crate::api::classes::LevelSpellcasting;
 use crate::Character;
 use crate::classes::Classes;
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum ApiError {
-    Reqwest(CynicReqwestError),
+    #[error("Reqwest error: {0}")]
+    Reqwest(#[from] CynicReqwestError),
+    #[error("Schema error")]
     Schema,
-}
-
-impl From<CynicReqwestError> for ApiError {
-    fn from(e: CynicReqwestError) -> Self {
-        Self::Reqwest(e)
-    }
 }
 
 //noinspection RsCompileErrorMacro
