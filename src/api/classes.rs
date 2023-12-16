@@ -3,6 +3,7 @@ use cynic::http::ReqwestExt;
 use reqwest::Client;
 use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
+use serde::Deserialize;
 use crate::classes::Class;
 
 #[derive(cynic::QueryVariables, Debug)]
@@ -51,7 +52,7 @@ pub struct Level {
     pub spellcasting: Option<LevelSpellcasting>,
 }
 
-#[derive(cynic::QueryFragment, Debug)]
+#[derive(cynic::QueryFragment, Debug, Deserialize)]
 pub struct LevelSpellcasting {
     #[cynic(rename = "cantrips_known")]
     pub cantrips_known: Option<i32>,

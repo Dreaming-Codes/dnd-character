@@ -1,6 +1,10 @@
+use std::collections::HashMap;
 use std::fmt;
 use cynic::http::{CynicReqwestError, ReqwestExt};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use crate::abilities::Abilities;
+use crate::api::classes::LevelSpellcasting;
 use crate::Character;
 use crate::classes::Classes;
 
@@ -122,5 +126,24 @@ impl Character {
             max_hp: 0,
             other: vec![],
         })
+    }
+
+    pub async fn get_spellcasting_slots(&self) -> Result<HashMap<String, LevelSpellcasting>, ApiError> {
+        let mut spellcasting_slots = HashMap::new();
+        for class in self.classes.0.iter() {
+            let spellcasting_slots_class = class.get_spellcasting_slots().await?;
+            spellcasting_slots.insert(class.0.clone(), spellcasting_slots_class);
+        }
+        Ok(spellcasting_slots)
+    }
+
+    pub async fn rich_print(&self) -> Result<String, ApiError> {
+        let spellcasting_slots = self.get_spellcasting_slots().await?;
+
+        let character = json!(self);
+
+        character["spellcasting_slots"] = json!(spellcasting_slots);
+
+        Ok(character.to_string())
     }
 }
