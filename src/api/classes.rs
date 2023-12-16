@@ -75,6 +75,40 @@ pub struct LevelSpellcasting {
     pub spell_slots_level_9: Option<i32>,
 }
 
+#[derive(cynic::QueryVariables, Debug)]
+pub struct LevelFeaturesQueryVariables {
+    pub class: Option<StringFilter>,
+    pub level: Option<IntFilter>,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+#[cynic(graphql_type = "Query", variables = "LevelFeaturesQueryVariables")]
+pub struct LevelFeaturesQuery {
+    #[arguments(level: $level, class: $class)]
+    pub features: Option<Vec<Feature>>,
+}
+
+#[derive(cynic::QueryFragment, Debug)]
+pub struct Feature {
+    pub index: String,
+}
+
+#[derive(cynic::Scalar, Debug, Clone)]
+pub struct IntFilter(pub String);
+
+#[derive(cynic::Scalar, Debug, Clone)]
+pub struct StringFilter(pub String);
+
+enum CustomLevelFeature {
+}
+
+impl CustomLevelFeature {
+    pub fn identify(index: String) -> Option<CustomLevelFeature> {
+        match index.as_str() {
+            _ => None
+        }
+    }
+}
 
 
 impl Class {
@@ -109,13 +143,47 @@ impl Class {
         Ok(spellcasting_slots)
     }
 
-    pub async fn apply_level(&mut self, level: u8) -> Result<(), ApiError> {
+    pub async fn set_level(&mut self, new_level: u8) -> Result<(), ApiError> {
+        let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
+            class: Some(StringFilter(self.0.clone())),
+            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", self.1.level, new_level)))
+        });
 
-        // If feature index contain ability-sucore-improvement, then trigger the ability score improvement
-        // If the feature is spell-mastery, then add the description to the other field of the class and in the very next element of the vector add the spell to use with spell mastery (instruct the ai)
-        // When the feature is signature-spell then add the description to the other field of the class and in the very next element of the vector add the spell to use with signature spell (instruct the ai)
+        let features = Client::new()
+            .post("https://www.dnd5eapi.co/graphql")
+            .run_graphql(op).await?
+            .data.ok_or(ApiError::Schema)?
+            .features.ok_or(ApiError::Schema)?;
 
-        self.1.level = level;
+        features.iter().filter_map(|feature| {
+            CustomLevelFeature::identify(feature.index.clone())
+        }).for_each(|feature| {
+            match feature {
+            }
+        });
+
+        self.1.level = new_level;
+
         Ok(())
+    }
+
+    pub async fn get_levels_features(&self, from_level: Option<u8>) -> Result<Vec<String>, ApiError> {
+        let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
+            class: Some(StringFilter(self.0.clone())),
+            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", from_level.unwrap_or(0), self.1.level)))
+        });
+
+        let features = Client::new()
+            .post("https://www.dnd5eapi.co/graphql")
+            .run_graphql(op).await?
+            .data.ok_or(ApiError::Schema)?
+            .features.ok_or(ApiError::Schema)?;
+
+        // Remove all identifiable features
+        let features = features.into_iter().filter(|feature| {
+            CustomLevelFeature::identify(feature.index.clone()).is_none()
+        }).map(|feature| feature.index).collect();
+
+        Ok(features)
     }
 }
