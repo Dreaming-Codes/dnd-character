@@ -128,7 +128,9 @@ impl Character {
         let mut spellcasting_slots = HashMap::new();
         for class in self.classes.0.iter() {
             let spellcasting_slots_class = class.1.get_spellcasting_slots().await?;
-            spellcasting_slots.insert(class.0.clone(), spellcasting_slots_class);
+            if let Some(spellcasting_slots_class) = spellcasting_slots_class {
+                spellcasting_slots.insert(class.0.clone(), spellcasting_slots_class);
+            }
         }
         Ok(spellcasting_slots)
     }
@@ -138,7 +140,9 @@ impl Character {
 
         let mut character = json!(self);
 
-        character["spellcasting_slots"] = json!(spellcasting_slots);
+        if !spellcasting_slots.is_empty() {
+            character["spellcasting_slots"] = json!(spellcasting_slots);
+        }
 
         Ok(character.to_string())
     }

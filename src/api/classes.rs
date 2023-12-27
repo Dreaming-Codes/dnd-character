@@ -129,7 +129,7 @@ impl Class {
         Ok(ability_index)
     }
 
-    pub async fn get_spellcasting_slots(&self) -> Result<LevelSpellcasting, ApiError> {
+    pub async fn get_spellcasting_slots(&self) -> Result<Option<LevelSpellcasting>, ApiError> {
         let op = SpellcastingQuery::build(SpellcastingQueryVariables {
             index: Some(format!("{}-{}", self.index(), self.1.level))
         });
@@ -139,7 +139,7 @@ impl Class {
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .level.ok_or(ApiError::Schema)?
-            .spellcasting.ok_or(ApiError::Schema)?;
+            .spellcasting;
 
         Ok(spellcasting_slots)
     }
