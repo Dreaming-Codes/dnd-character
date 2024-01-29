@@ -135,13 +135,27 @@ impl Character {
         Ok(spellcasting_slots)
     }
 
+    pub async fn get_features(&self) -> Result<Vec<String>, ApiError> {
+        let mut features = Vec::new();
+        for class in self.classes.0.iter() {
+            let features_class = class.1.get_levels_features(None).await?;
+            features.extend(features_class);
+        }
+        Ok(features)
+    }
+
     pub async fn rich_print(&self) -> Result<String, ApiError> {
         let spellcasting_slots = self.get_spellcasting_slots().await?;
+        let features = self.get_features().await?;
 
         let mut character = json!(self);
 
         if !spellcasting_slots.is_empty() {
             character["spellcasting_slots"] = json!(spellcasting_slots);
+        }
+
+        if !features.is_empty() {
+            character["features"] = json!(features);
         }
 
         Ok(character.to_string())
