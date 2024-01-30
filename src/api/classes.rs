@@ -100,7 +100,7 @@ pub struct IntFilter(pub String);
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct StringFilter(pub String);
 
-enum CustomLevelFeature {
+pub enum CustomLevelFeature {
     // Ask the user to spend 2 points in any ability score
     AbilityScoreImprovement,
     // https://www.dnd5eapi.co/api/features/pact-boon
