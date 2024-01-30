@@ -101,11 +101,34 @@ pub struct IntFilter(pub String);
 pub struct StringFilter(pub String);
 
 enum CustomLevelFeature {
+    // Ask the user to spend 2 points in any ability score
+    AbilityScoreImprovement,
+    // https://www.dnd5eapi.co/api/features/pact-boon
+    WarlockPact,
+    // Ignore this feature, since we have only one subclass per class
+    SubclassChoice,
+    // https://www.dnd5eapi.co/api/features/additional-fighting-style
+    AdditionalFighterFightingStyle,
+    // https://www.dnd5eapi.co/api/features/bonus-proficiencies
+    BonusBardProficiency,
+    // https://www.dnd5eapi.co/api/features/beast-spells
+    // This feature will not be implemented for now
+    // TODO: Implement
+    BeastSpells,
+    // This is for features already handled by other parts of the code and not needed to be managed as "features"
+    Ignored
 }
 
 impl CustomLevelFeature {
     pub fn identify(index: String) -> Option<CustomLevelFeature> {
         match index.as_str() {
+            x if x.contains("ability-score-improvement") => Some(CustomLevelFeature::AbilityScoreImprovement),
+            "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" => Some(CustomLevelFeature::SubclassChoice),
+            "pact-boon" => Some(CustomLevelFeature::WarlockPact),
+            "additional-fighting-style" => Some(CustomLevelFeature::AdditionalFighterFightingStyle),
+            "beast-spells" => Some(CustomLevelFeature::BeastSpells),
+            "bonus-proficiencies" => Some(CustomLevelFeature::BonusBardProficiency),
+            "additional-magical-secrets" | "bonus-cantrip" => Some(CustomLevelFeature::Ignored),
             _ => None
         }
     }
@@ -160,6 +183,11 @@ impl Class {
             CustomLevelFeature::identify(feature.index.clone())
         }).for_each(|feature| {
             match feature {
+                CustomLevelFeature::AbilityScoreImprovement => {}
+                CustomLevelFeature::WarlockPact => {}
+                CustomLevelFeature::AdditionalFighterFightingStyle => {}
+                CustomLevelFeature::BonusBardProficiency => {}
+                CustomLevelFeature::BeastSpells | CustomLevelFeature::SubclassChoice | CustomLevelFeature::Ignored => {}
             }
         });
 
