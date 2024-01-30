@@ -3,7 +3,7 @@ use cynic::http::ReqwestExt;
 use reqwest::Client;
 use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use crate::classes::Class;
 
 #[derive(cynic::QueryVariables, Debug)]
@@ -167,7 +167,7 @@ impl Class {
         Ok(spellcasting_slots)
     }
 
-    pub async fn set_level(&mut self, new_level: u8) -> Result<(), ApiError> {
+    pub async fn set_level(&mut self, new_level: u8) -> Result<Vec<CustomLevelFeature>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
             level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", self.1.level, new_level)))
@@ -179,21 +179,22 @@ impl Class {
             .data.ok_or(ApiError::Schema)?
             .features.ok_or(ApiError::Schema)?;
 
+        let mut pending_features = vec![];
+
         features.iter().filter_map(|feature| {
             CustomLevelFeature::identify(feature.index.clone())
         }).for_each(|feature| {
             match feature {
-                CustomLevelFeature::AbilityScoreImprovement => {}
-                CustomLevelFeature::WarlockPact => {}
-                CustomLevelFeature::AdditionalFighterFightingStyle => {}
-                CustomLevelFeature::BonusBardProficiency => {}
                 CustomLevelFeature::BeastSpells | CustomLevelFeature::SubclassChoice | CustomLevelFeature::Ignored => {}
+                _ => {
+                    pending_features.push(feature);
+                }
             }
         });
 
         self.1.level = new_level;
 
-        Ok(())
+        Ok(pending_features)
     }
 
     pub async fn get_levels_features(&self, from_level: Option<u8>) -> Result<Vec<String>, ApiError> {
