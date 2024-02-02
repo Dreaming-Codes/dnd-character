@@ -26,6 +26,7 @@ pub enum ClassSpellCasting {
     },
 }
 
+#[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 struct UsableSlots {
