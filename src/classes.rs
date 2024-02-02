@@ -22,7 +22,38 @@ pub enum ClassSpellCasting {
     KnowledgeAlreadyPrepared {
         /// Indexes from https://www.dnd5eapi.co/api/spells/
         spells_index: Vec<String>,
+        used_slots: UsableSlots,
     },
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+struct UsableSlots {
+    level_1: u8,
+    level_2: u8,
+    level_3: u8,
+    level_4: u8,
+    level_5: u8,
+    level_6: u8,
+    level_7: u8,
+    level_8: u8,
+    level_9: u8,
+}
+
+impl Default for UsableSlots {
+    fn default() -> Self {
+        Self {
+            level_1: 0,
+            level_2: 0,
+            level_3: 0,
+            level_4: 0,
+            level_5: 0,
+            level_6: 0,
+            level_7: 0,
+            level_8: 0,
+            level_9: 0,
+        }
+    }
 }
 
 #[derive(Debug)]
