@@ -5,14 +5,35 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+pub enum ClassSpellCasting {
+    // Wizard
+    KnowledgePrepared {
+        /// Indexes from https://www.dnd5eapi.co/api/spells/
+        spells_index: Vec<String>,
+        /// Indexes from https://www.dnd5eapi.co/api/spells/
+        spells_prepared_index: Vec<String>,
+    },
+    // Cleric, Paladin, Druid
+    AlreadyKnowPrepared {
+        /// Indexes from https://www.dnd5eapi.co/api/spells/
+        spells_prepared_index: Vec<String>,
+    },
+    // Bard, Ranger, Warlock
+    KnowledgeAlreadyPrepared {
+        /// Indexes from https://www.dnd5eapi.co/api/spells/
+        spells_index: Vec<String>,
+    },
+}
+
+#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ClassProperties {
     pub level: u8,
     /// Index from https://www.dnd5eapi.co/api/subclasses/
     pub subclass: Option<String>,
     /// Indexes from https://www.dnd5eapi.co/api/spells/
-    pub spells_index: Vec<String>,
-    /// Indexes from https://www.dnd5eapi.co/api/spells/
-    pub spells_prepared_index: Vec<String>,
+    pub spell_casting: Option<ClassSpellCasting>,
 }
 
 impl Default for ClassProperties {
@@ -20,8 +41,7 @@ impl Default for ClassProperties {
         Self {
             level: 1,
             subclass: None,
-            spells_index: Vec::new(),
-            spells_prepared_index: Vec::new()
+            spell_casting: None,
         }
     }
 }
