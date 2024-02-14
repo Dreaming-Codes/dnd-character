@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use super::shared::schema;
 use cynic::http::ReqwestExt;
 use reqwest::Client;
@@ -215,7 +216,7 @@ impl Class {
             CustomLevelFeature::identify(feature.index.clone()).is_none()
         }).map(|feature| feature.index).collect();
 
-        let features = {
+        let features: Vec<String> = {
             lazy_static! {
                 static ref CR_REGEX: regex::Regex = regex::Regex::new(r"destroy-undead-cr-([0-9]+(?:-[0-9]+)?)\-or-below").unwrap();
             }
@@ -235,6 +236,38 @@ impl Class {
                 }
             }).map(|feature| feature.clone()).collect()
         };
+
+        lazy_static! {
+            static ref DICE_REGEX: regex::Regex = regex::Regex::new(r"^(.+)-d(\d+)$").unwrap();
+        }
+
+        let mut grouped_features: HashMap<String, u32> = HashMap::new();
+        for feature in &features {
+            if let Some(caps) = DICE_REGEX.captures(feature) {
+                if caps.len() == 3 {
+                    let prefix = caps.get(1).unwrap().as_str().to_string();
+                    let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap();
+
+                    let current_max = grouped_features.entry(prefix).or_insert(0);
+                    if dice_value > *current_max {
+                        *current_max = dice_value;
+                    }
+                }
+            }
+        }
+
+        let features = features.into_iter().filter(|feature| {
+            if let Some(caps) = DICE_REGEX.captures(feature) {
+                let prefix = caps.get(1).unwrap().as_str();
+                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().expect("Parsing dice value");
+
+                if let Some(&max_dice) = grouped_features.get(prefix) {
+                    return dice_value == max_dice;
+                }
+            }
+            true
+        }).collect();
+
 
         Ok(features)
     }
