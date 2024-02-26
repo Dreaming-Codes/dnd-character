@@ -111,6 +111,7 @@ pub enum CustomLevelFeature {
     AdditionalFighterFightingStyle,
     // https://www.dnd5eapi.co/api/features/bonus-proficiencies
     BonusBardProficiency,
+    HeavyArmorProficiency,
     // https://www.dnd5eapi.co/api/features/beast-spells
     // This feature will not be implemented for now
     // TODO: Implement
@@ -122,13 +123,16 @@ pub enum CustomLevelFeature {
 impl CustomLevelFeature {
     pub fn identify(index: String) -> Option<CustomLevelFeature> {
         match index.as_str() {
-            x if x.contains("ability-score-improvement") => Some(CustomLevelFeature::AbilityScoreImprovement),
-            "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" => Some(CustomLevelFeature::SubclassChoice),
+            "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" | "druid-circle" | "primal-path" | "martial-archetype" => Some(CustomLevelFeature::SubclassChoice),
             "pact-boon" => Some(CustomLevelFeature::WarlockPact),
             "additional-fighting-style" => Some(CustomLevelFeature::AdditionalFighterFightingStyle),
             "beast-spells" => Some(CustomLevelFeature::BeastSpells),
             "bonus-proficiencies" => Some(CustomLevelFeature::BonusBardProficiency),
+            "bonus-proficiency" => Some(CustomLevelFeature::HeavyArmorProficiency),
             "additional-magical-secrets" | "bonus-cantrip" => Some(CustomLevelFeature::Ignored),
+            "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => Some(CustomLevelFeature::Ignored),
+            x if x.starts_with("spellcasting-") => Some(CustomLevelFeature::Ignored),
+            x if x.contains("ability-score-improvement") => Some(CustomLevelFeature::AbilityScoreImprovement),
             _ => None
         }
     }
