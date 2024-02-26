@@ -103,43 +103,66 @@ pub struct IntFilter(pub String);
 pub struct StringFilter(pub String);
 
 pub enum CustomLevelFeature {
-    // Ask the user to spend 2 points in any ability score
+    /// Ask the user to spend 2 points in any ability score
     AbilityScoreImprovement,
-    // https://www.dnd5eapi.co/api/features/pact-boon
+    /// https://www.dnd5eapi.co/api/features/pact-boon
     WarlockPact,
-    // Ignore this feature, since we have only one subclass per class
+    /// Ignore this feature, since we have only one subclass per class
     SubclassChoice,
-    // https://www.dnd5eapi.co/api/features/additional-fighting-style
+    /// https://www.dnd5eapi.co/api/features/additional-fighting-style
     AdditionalFighterFightingStyle,
-    // https://www.dnd5eapi.co/api/features/bonus-proficiencies
+    /// https://www.dnd5eapi.co/api/features/bonus-proficiencies
     BonusBardProficiency,
     HeavyArmorProficiency,
-    // https://www.dnd5eapi.co/api/features/beast-spells
-    // This feature will not be implemented for now
-    // TODO: Implement
+    /// https://www.dnd5eapi.co/api/features/beast-spells
+    /// This feature will not be implemented for now
+    /// TODO: Implement
     BeastSpells,
-    // Used for
-    // https://www.dnd5eapi.co/api/features/bard-expertise-1
-    // https://www.dnd5eapi.co/api/features/bard-expertise-2
-    MultiplyTwoSkillProficiency(u8),
-    // This is for features already handled by other parts of the code and not needed to be managed as "features"
+    /// Used for
+    /// https://www.dnd5eapi.co/api/features/bard-expertise-1
+    /// https://www.dnd5eapi.co/api/features/bard-expertise-2
+    /// https://www.dnd5eapi.co/api/features/rogue-expertise-1
+    /// https://www.dnd5eapi.co/api/features/rogue-expertise-2
+    MultiplyTwoSkillProficiency,
+    /// https://www.dnd5eapi.co/api/features/magical-secrets-1
+    /// https://www.dnd5eapi.co/api/features/magical-secrets-2
+    /// https://www.dnd5eapi.co/api/features/magical-secrets-3
+    ChooseTwoSpellForAnyClass,
+    /// https://www.dnd5eapi.co/api/features/mystic-arcanum-6th-level
+    /// https://www.dnd5eapi.co/api/features/mystic-arcanum-7th-level
+    /// https://www.dnd5eapi.co/api/features/mystic-arcanum-8th-level
+    /// https://www.dnd5eapi.co/api/features/mystic-arcanum-9th-level
+    ChooseOne6thLevelSpellFromWarlockList,
+    /// https://www.dnd5eapi.co/api/features/paladin-fighting-style
+    PaladinFightingStyle,
+    /// https://www.dnd5eapi.co/api/features/primal-champion
+    PrimalChampion,
+    /// https://www.dnd5eapi.co/api/features/diamond-soul
+    ProficiencyInAllSkill,
+    /// This is for features already handled by other parts of the code and not needed to be managed as "features"
     Ignored,
 }
 
 impl CustomLevelFeature {
     pub fn identify(index: String) -> Option<CustomLevelFeature> {
+        use CustomLevelFeature::*;
         match index.as_str() {
-            "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" | "druid-circle" | "primal-path" | "martial-archetype" => Some(CustomLevelFeature::SubclassChoice),
-            "pact-boon" => Some(CustomLevelFeature::WarlockPact),
-            "additional-fighting-style" => Some(CustomLevelFeature::AdditionalFighterFightingStyle),
-            "beast-spells" => Some(CustomLevelFeature::BeastSpells),
-            "bonus-proficiencies" => Some(CustomLevelFeature::BonusBardProficiency),
-            "bonus-proficiency" => Some(CustomLevelFeature::HeavyArmorProficiency),
-            "additional-magical-secrets" | "bonus-cantrip" => Some(CustomLevelFeature::Ignored),
-            "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => Some(CustomLevelFeature::Ignored),
-            x if x.starts_with("bard-expertise-") => Some(CustomLevelFeature::MultiplyTwoSkillProficiency(2)),
-            x if x.starts_with("spellcasting-") => Some(CustomLevelFeature::Ignored),
-            x if x.contains("ability-score-improvement") => Some(CustomLevelFeature::AbilityScoreImprovement),
+            "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" | "druid-circle" | "primal-path" | "martial-archetype" | "otherworldly-patron" => Some(SubclassChoice),
+            "pact-boon" => Some(WarlockPact),
+            "additional-fighting-style" => Some(AdditionalFighterFightingStyle),
+            "beast-spells" => Some(BeastSpells),
+            "bonus-proficiencies" => Some(BonusBardProficiency),
+            "bonus-proficiency" => Some(HeavyArmorProficiency),
+            "additional-magical-secrets" | "bonus-cantrip" => Some(Ignored),
+            "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => Some(Ignored),
+            "magical-secrets-1" | "magical-secrets-2" | "magical-secrets-3" => Some(ChooseTwoSpellForAnyClass),
+            "mystic-arcanum-6th-level" | "mystic-arcanum-7th-level" | "mystic-arcanum-8th-level" | "mystic-arcanum-9th-level" => Some(ChooseOne6thLevelSpellFromWarlockList),
+            "paladin-fighting-style" => Some(PaladinFightingStyle),
+            "primal-champion" => Some(PrimalChampion),
+            "diamond-soul" => Some(ProficiencyInAllSkill),
+            x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(MultiplyTwoSkillProficiency),
+            x if x.starts_with("spellcasting-") => Some(Ignored),
+            x if x.contains("ability-score-improvement") => Some(AbilityScoreImprovement),
             _ => None
         }
     }

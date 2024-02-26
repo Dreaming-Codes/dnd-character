@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt;
-use cynic::http::{CynicReqwestError, ReqwestExt};
-use serde::{Deserialize, Serialize};
+use cynic::http::{CynicReqwestError};
+
 use serde_json::json;
 use crate::abilities::Abilities;
 use crate::api::classes::LevelSpellcasting;

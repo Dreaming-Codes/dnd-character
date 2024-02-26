@@ -3,7 +3,7 @@
 use cynic::http::ReqwestExt;
 use reqwest::Client;
 use cynic::QueryBuilder;
-use dnd_character::abilities::{Abilities, Ability, AbilityScore};
+use dnd_character::abilities::{Abilities, Ability};
 use dnd_character::Character;
 
 //noinspection RsCompileErrorMacro
