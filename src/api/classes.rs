@@ -118,6 +118,10 @@ pub enum CustomLevelFeature {
     // This feature will not be implemented for now
     // TODO: Implement
     BeastSpells,
+    // Used for
+    // https://www.dnd5eapi.co/api/features/bard-expertise-1
+    // https://www.dnd5eapi.co/api/features/bard-expertise-2
+    MultiplyTwoSkillProficiency(u8),
     // This is for features already handled by other parts of the code and not needed to be managed as "features"
     Ignored,
 }
@@ -133,6 +137,7 @@ impl CustomLevelFeature {
             "bonus-proficiency" => Some(CustomLevelFeature::HeavyArmorProficiency),
             "additional-magical-secrets" | "bonus-cantrip" => Some(CustomLevelFeature::Ignored),
             "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => Some(CustomLevelFeature::Ignored),
+            x if x.starts_with("bard-expertise-") => Some(CustomLevelFeature::MultiplyTwoSkillProficiency(2)),
             x if x.starts_with("spellcasting-") => Some(CustomLevelFeature::Ignored),
             x if x.contains("ability-score-improvement") => Some(CustomLevelFeature::AbilityScoreImprovement),
             _ => None
