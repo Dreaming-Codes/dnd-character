@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct AbilityScore {
     pub score: u8,
     pub proficiency: bool,
+    pub proficiency_multiplier: u8,
 }
 
 impl AbilityScore {
@@ -15,12 +16,13 @@ impl AbilityScore {
         Self {
             score,
             proficiency,
+            proficiency_multiplier: 1,
         }
     }
     /// Returns the modifier of the ability score
     /// if you want to add the proficiency bonus, pass it as an argument otherwise pass 0
     pub fn modifier(&self, proficiency_bonus: u8) -> i8 {
-        ((self.score as i8 - 10) as f32 / 2f32).floor() as i8 + if self.proficiency { proficiency_bonus as i8 } else { 0 }
+        ((self.score as i8 - 10) as f32 / 2f32).floor() as i8 + if self.proficiency { (proficiency_bonus * self.proficiency_multiplier) as i8 } else { 0 }
     }
 }
 
