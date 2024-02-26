@@ -4,6 +4,7 @@ use cynic::http::ReqwestExt;
 use reqwest::Client;
 use cynic::QueryBuilder;
 use dnd_character::abilities::{Abilities, Ability, AbilityScore};
+use dnd_character::Character;
 
 //noinspection RsCompileErrorMacro
 #[cynic::schema("dnd5eapi")]
@@ -51,4 +52,23 @@ async fn abilities_new_test(){
     let local_abilities = Abilities::new().await.expect("Error in API Request");
 
     assert_eq!(remote_abilities.len(), local_abilities.0.len());
+}
+
+#[tokio::test]
+async fn get_level_features(){
+    let mut dnd_character = Character::new("cleric".to_string(), "a".to_string(), 16,"human".to_string(), "human".to_string(), "chaotic-neutral".to_string(), "bard".to_string(), "".to_string(), "".to_string()).await.expect("Error in API Request");
+
+    dnd_character.add_experience(90000);
+
+    let features = dnd_character.get_features().await.expect("Error in API Request");
+
+    assert_eq!(features.iter().filter(|feature| feature.starts_with("destroy-undead-cr-")).count(), 1);
+
+    let mut dnd_character = Character::new("bard".to_string(), "a".to_string(), 16,"human".to_string(), "human".to_string(), "chaotic-neutral".to_string(), "bard".to_string(), "".to_string(), "".to_string()).await.expect("Error in API Request");
+
+    dnd_character.add_experience(90000);
+
+    let features = dnd_character.get_features().await.expect("Error in API Request");
+
+    assert_eq!(features.iter().filter(|feature| feature.starts_with("song-of-rest-")).count(), 1);
 }

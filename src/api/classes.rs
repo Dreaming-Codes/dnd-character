@@ -1,8 +1,10 @@
+use std::collections::HashMap;
 use super::shared::schema;
 use cynic::http::ReqwestExt;
 use reqwest::Client;
 use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
+use lazy_static::lazy_static;
 use serde::{Serialize};
 use crate::classes::Class;
 
@@ -14,7 +16,7 @@ struct SpellcastingAbilityQueryVariables {
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "Query", variables = "SpellcastingAbilityQueryVariables")]
 struct SpellcastingAbilityQuery {
-    #[arguments(index: $index)]
+    #[arguments(index: $ index)]
     pub class: Option<ClassSpellCasting>,
 }
 
@@ -43,7 +45,7 @@ pub struct SpellcastingQueryVariables {
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "Query", variables = "SpellcastingQueryVariables")]
 pub struct SpellcastingQuery {
-    #[arguments(index: $index)]
+    #[arguments(index: $ index)]
     pub level: Option<Level>,
 }
 
@@ -85,7 +87,7 @@ pub struct LevelFeaturesQueryVariables {
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "Query", variables = "LevelFeaturesQueryVariables")]
 pub struct LevelFeaturesQuery {
-    #[arguments(level: $level, class: $class)]
+    #[arguments(level: $ level, class: $ class)]
     pub features: Option<Vec<Feature>>,
 }
 
@@ -117,7 +119,7 @@ pub enum CustomLevelFeature {
     // TODO: Implement
     BeastSpells,
     // This is for features already handled by other parts of the code and not needed to be managed as "features"
-    Ignored
+    Ignored,
 }
 
 impl CustomLevelFeature {
@@ -174,7 +176,7 @@ impl Class {
     pub async fn set_level(&mut self, new_level: u8) -> Result<Vec<CustomLevelFeature>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
-            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", self.1.level, new_level)))
+            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", self.1.level, new_level))),
         });
 
         let features = Client::new()
@@ -204,7 +206,7 @@ impl Class {
     pub async fn get_levels_features(&self, from_level: Option<u8>) -> Result<Vec<String>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
-            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", from_level.unwrap_or(0), self.1.level)))
+            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", from_level.unwrap_or(0), self.1.level))),
         });
 
         let features = Client::new()
@@ -214,9 +216,62 @@ impl Class {
             .features.ok_or(ApiError::Schema)?;
 
         // Remove all identifiable features
-        let features = features.into_iter().filter(|feature| {
+        let mut features: Vec<String> = features.into_iter().filter(|feature| {
             CustomLevelFeature::identify(feature.index.clone()).is_none()
         }).map(|feature| feature.index).collect();
+
+        let features: Vec<String> = {
+            lazy_static! {
+                static ref CR_REGEX: regex::Regex = regex::Regex::new(r"destroy-undead-cr-([0-9]+(?:-[0-9]+)?)\-or-below").unwrap();
+            }
+
+            let mut found = false;
+
+            features.iter_mut().rev().filter(|feature| {
+                if CR_REGEX.is_match(feature) {
+                    if found {
+                        false
+                    } else {
+                        found = true;
+                        true
+                    }
+                } else {
+                    true
+                }
+            }).map(|feature| feature.clone()).collect()
+        };
+
+        lazy_static! {
+            static ref DICE_REGEX: regex::Regex = regex::Regex::new(r"^(.+)-d(\d+)$").unwrap();
+        }
+
+        let mut grouped_features: HashMap<String, u32> = HashMap::new();
+        for feature in &features {
+            if let Some(caps) = DICE_REGEX.captures(feature) {
+                if caps.len() == 3 {
+                    let prefix = caps.get(1).unwrap().as_str().to_string();
+                    let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap();
+
+                    let current_max = grouped_features.entry(prefix).or_insert(0);
+                    if dice_value > *current_max {
+                        *current_max = dice_value;
+                    }
+                }
+            }
+        }
+
+        let features = features.into_iter().filter(|feature| {
+            if let Some(caps) = DICE_REGEX.captures(feature) {
+                let prefix = caps.get(1).unwrap().as_str();
+                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().expect("Parsing dice value");
+
+                if let Some(&max_dice) = grouped_features.get(prefix) {
+                    return dice_value == max_dice;
+                }
+            }
+            true
+        }).collect();
+
 
         Ok(features)
     }
