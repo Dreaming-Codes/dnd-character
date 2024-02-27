@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fmt;
 use cynic::http::{CynicReqwestError};
 
 use serde_json::json;
@@ -25,32 +24,6 @@ pub enum CheckError{
     InvalidBackground,
     InvalidAlignment,
     InvalidAbilities
-}
-
-#[derive(Debug)]
-pub enum NewError {
-    CheckError(CheckError),
-    ApiError(ApiError),
-}
-
-impl fmt::Display for NewError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "The ability isn't present in the character's abilities")
-    }
-}
-
-impl std::error::Error for NewError {}
-
-impl From<ApiError> for NewError {
-    fn from(e: ApiError) -> Self {
-        Self::ApiError(e)
-    }
-}
-
-impl From<CynicReqwestError> for NewError {
-    fn from(e: CynicReqwestError) -> Self {
-        Self::ApiError(e.into())
-    }
 }
 
 mod race_query {
