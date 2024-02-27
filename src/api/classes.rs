@@ -280,7 +280,17 @@ impl Class {
 
         // Remove all identifiable features
         let mut features: Vec<String> = features.into_iter().filter(|feature| {
-            CustomLevelFeature::identify(feature.index.clone()).is_none()
+            match CustomLevelFeature::identify(feature.index.clone()) {
+                None => {
+                    true
+                }
+                Some(custom_type) => {
+                    match custom_type {
+                        CustomLevelFeature::Passive => true,
+                        _ => false
+                    }
+                }
+            }
         }).map(|feature| feature.index).collect();
 
         let features: Vec<String> = {
