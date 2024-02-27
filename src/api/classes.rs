@@ -145,7 +145,7 @@ pub enum CustomLevelFeatureType {
     Ignored
 }
 
-impl ChoosableCustomLevelFeature {
+impl CustomLevelFeatureType {
     pub fn identify(index: String) -> Option<CustomLevelFeatureType> {
         use ChoosableCustomLevelFeature::*;
         use CustomLevelFeatureType::*;
@@ -248,7 +248,7 @@ impl Class {
         let mut pending_features = vec![];
 
         features.iter().filter_map(|feature| {
-            ChoosableCustomLevelFeature::identify(feature.index.clone())
+            CustomLevelFeatureType::identify(feature.index.clone())
         }).for_each(|feature| {
             match feature {
                 CustomLevelFeatureType::Passive => {}
@@ -286,7 +286,7 @@ impl Class {
 
         // Remove all identifiable features
         let mut features: Vec<String> = features.into_iter().filter(|feature| {
-            match ChoosableCustomLevelFeature::identify(feature.index.clone()) {
+            match CustomLevelFeatureType::identify(feature.index.clone()) {
                 None => {
                     true
                 }
