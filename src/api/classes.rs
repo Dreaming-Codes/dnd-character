@@ -111,6 +111,12 @@ pub enum CustomLevelFeature {
     SubclassChoice,
     /// https://www.dnd5eapi.co/api/features/additional-fighting-style
     AdditionalFighterFightingStyle,
+    /// match: https://www.dnd5eapi.co/api/features/ranger-fighting-style
+    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-archery
+    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-defense
+    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-dueling
+    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-two-weapon-fighting
+    RangerFightingStyle,
     /// https://www.dnd5eapi.co/api/features/bonus-proficiencies
     BonusBardProficiency,
     HeavyArmorProficiency,
@@ -139,6 +145,8 @@ pub enum CustomLevelFeature {
     PrimalChampion,
     /// https://www.dnd5eapi.co/api/features/diamond-soul
     ProficiencyInAllSkill,
+    /// Features with this type are going to be written in the character sheet only
+    Passive,
     /// This is for features already handled by other parts of the code and not needed to be managed as "features"
     Ignored,
 }
@@ -160,8 +168,34 @@ impl CustomLevelFeature {
             "paladin-fighting-style" => Some(PaladinFightingStyle),
             "primal-champion" => Some(PrimalChampion),
             "diamond-soul" => Some(ProficiencyInAllSkill),
+            "arcane-recovery" | "archdruid" | "aura-improvements" | "aura-of-courage" | "aura-of-devotion" | "aura-of-protection"
+            | "blessed-healer" | "blindsense" | "brutal-critical-1-dice" | "brutal-critical-2-dice" | "brutal-critical-3-dice"
+            | "danger-sense" | "dark-ones-blessing" | "dark-ones-own-luck" | "defensive-tactics" | "defensive-tactics-steel-will"
+            | "defensive-tactics-escape-the-horde" | "defensive-tactics-multiattack-defense" | "destroy-undead-cr-1-or-below"
+            | "destroy-undead-cr-2-or-below" | "destroy-undead-cr-3-or-below" | "destroy-undead-cr-4-or-below" | "destroy-undead-cr-1-2-or-below"
+            | "disciple-of-life" | "divine-health" | "dragon-ancestor-black---acid-damage" | "dragon-ancestor-blue---lightning-damage"
+            | "dragon-ancestor-brass---fire-damage" | "dragon-ancestor-bronze---lightning-damage" | "dragon-ancestor-copper---acid-damage"
+            | "dragon-ancestor-gold---fire-damage" | "dragon-ancestor-green---poison-damage" | "dragon-ancestor-red---fire-damage"
+            | "dragon-ancestor-silver---cold-damage" | "dragon-ancestor-white---cold-damage" | "druid-lands-stride" | "druid-timeless-body"
+            | "druidic" | "elusive" | "empowered-evocation" | "elemental-affinity" | "fast-movement" | "favored-enemy-1-type" | "favored-enemy-2-types"
+            | "favored-enemy-3-enemies" | "feral-instinct" | "feral-senses" | "fighter-fighting-style" | "fighter-fighting-style-archery"
+            | "fighter-fighting-style-defense" | "fighter-fighting-style-dueling" | "fighter-fighting-style-great-weapon-fighting"
+            | "fighter-fighting-style-two-weapon-fighting" | "fighting-style-defense" | "fighting-style-dueling"
+            | "fighting-style-great-weapon-fighting" | "foe-slayer" | "hurl-through-hell" | "improved-critical" | "improved-divine-smite"
+            | "indomitable-1-use" | "indomitable-2-uses" | "indomitable-3-uses" | "indomitable-might" | "ki-empowered-strikes" | "jack-of-all-trades"
+            | "martial-arts" | "monk-evasion" | "monk-timeless-body" | "natural-explorer-1-terrain-type" | "natural-explorer-2-terrain-types"
+            | "natural-explorer-3-terrain-types" | "purity-of-body" | "purity-of-spirit" | "natures-sanctuary" | "natures-ward"
+            | "sculpt-spells" | "ranger-lands-stride" | "relentless-rage" | "reliable-talent" | "remarkable-athlete" | "rogue-evasion" | "superior-critical"
+            | "superior-inspiration" | "supreme-healing" | "supreme-sneak" | "survivor" | "thiefs-reflexes" | "thieves-cant"
+            | "tongue-of-the-sun-and-moon" | "tranquility" | "unarmored-movement-1" | "unarmored-movement-2" | "use-magic-device"
+            | "superior-hunters-defense" | "superior-hunters-defense-evasion" | "wild-shape-cr-1-2-or-below-no-flying-speed"
+            | "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed" | "wild-shape-cr-1-or-below" | "ki" | "monk-unarmored-defense"
+            | "perfect-self" | "slippery-mind" | "mindless-rage" | "barbarian-unarmored-defense"
+            | "divine-intervention-improvement" | "persistent-rage" | "evocation-savant" | "potent-cantrip" | "second-story-work" => Some(Passive),
             x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(MultiplyTwoSkillProficiency),
             x if x.starts_with("spellcasting-") => Some(Ignored),
+            // Ignore all eldritch invocations since they are unlocked using invocation known table
+            x if x.starts_with("eldritch-invocation-") => Some(Ignored),
             x if x.contains("ability-score-improvement") => Some(AbilityScoreImprovement),
             _ => None
         }
@@ -220,6 +254,7 @@ impl Class {
         }).for_each(|feature| {
             match feature {
                 CustomLevelFeature::BeastSpells | CustomLevelFeature::SubclassChoice | CustomLevelFeature::Ignored => {}
+                CustomLevelFeature::ProficiencyInAllSkill => {}
                 _ => {
                     pending_features.push(feature);
                 }
