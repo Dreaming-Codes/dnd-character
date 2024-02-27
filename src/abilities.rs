@@ -1,7 +1,6 @@
-use std::collections::{HashMap};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct AbilityScore {
@@ -23,12 +22,14 @@ impl AbilityScore {
     }
 }
 
-/// The key is the index of the ability from https://www.dnd5eapi.co/api/ability-scores
+#[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
-pub struct Ability(pub AbilityScore);
-
-#[derive(Default)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
-pub struct Abilities(pub HashMap<String, Ability>);
+pub struct Abilities {
+    pub strength: AbilityScore,
+    pub dexterity: AbilityScore,
+    pub constitution: AbilityScore,
+    pub intelligence: AbilityScore,
+    pub wisdom: AbilityScore,
+    pub charisma: AbilityScore,
+}

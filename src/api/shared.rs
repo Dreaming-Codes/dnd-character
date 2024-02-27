@@ -3,10 +3,8 @@ use std::fmt;
 use cynic::http::{CynicReqwestError};
 
 use serde_json::json;
-use crate::abilities::Abilities;
 use crate::api::classes::LevelSpellcasting;
 use crate::Character;
-use crate::classes::Classes;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ApiError {
@@ -101,29 +99,6 @@ mod race_query {
 
 
 impl Character {
-    pub async fn new(main_class: String, name: String, age: u16, race_index: String, subrace_index: String, alignment_index: String, description: String, background_index: String, background_description: String) -> Result<Self, NewError> {
-        Ok(Self {
-            classes: Classes::new(main_class),
-            name,
-            age,
-            race_index,
-            subrace_index,
-            alignment_index,
-            description,
-            background_index,
-            background_description,
-            experience_points: 0,
-            money: 0,
-            inventory: Vec::new(),
-
-            abilities_score: Abilities::new().await?,
-            armor_class: 0,
-            hp: 0,
-            max_hp: 0,
-            other: vec![],
-        })
-    }
-
     pub async fn get_spellcasting_slots(&self) -> Result<HashMap<String, LevelSpellcasting>, ApiError> {
         let mut spellcasting_slots = HashMap::new();
         for class in self.classes.0.iter() {

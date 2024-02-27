@@ -8,7 +8,8 @@ use std::fmt;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-use crate::abilities::{Abilities, Ability};
+use crate::abilities::{Abilities};
+use crate::api::shared::NewError;
 use crate::classes::Classes;
 
 #[derive(Debug)]
@@ -62,6 +63,29 @@ pub struct Character {
 const LEVELS: [u32; 19] = [300, 900, 2_700, 6_500, 14_000, 23_000, 34_000, 48_000, 64_000, 85_000, 100_000, 120_000, 140_000, 165_000, 195_000, 225_000, 265_000, 305_000, 355_000];
 
 impl Character {
+    pub fn new(main_class: String, name: String, age: u16, race_index: String, subrace_index: String, alignment_index: String, description: String, background_index: String, background_description: String) -> Result<Self, NewError> {
+        Ok(Self {
+            classes: Classes::new(main_class),
+            name,
+            age,
+            race_index,
+            subrace_index,
+            alignment_index,
+            description,
+            background_index,
+            background_description,
+            experience_points: 0,
+            money: 0,
+            inventory: Vec::new(),
+
+            abilities_score: Abilities::default(),
+            armor_class: 0,
+            hp: 0,
+            max_hp: 0,
+            other: vec![],
+        })
+    }
+    
     /// Return current level of the character
     pub fn level(&self) -> u8 {
         LEVELS.iter().filter(|&&x| x <= self.experience_points).count() as u8 + 1

@@ -6,6 +6,7 @@ use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
 use lazy_static::lazy_static;
 use serde::{Serialize};
+use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::classes::Class;
 
 #[derive(cynic::QueryVariables, Debug)]
@@ -102,28 +103,17 @@ pub struct IntFilter(pub String);
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct StringFilter(pub String);
 
-pub enum CustomLevelFeature {
+pub enum ChoosableCustomLevelFeature {
     /// Ask the user to spend 2 points in any ability score
     AbilityScoreImprovement,
     /// https://www.dnd5eapi.co/api/features/pact-boon
     WarlockPact,
-    /// Ignore this feature, since we have only one subclass per class
-    SubclassChoice,
     /// https://www.dnd5eapi.co/api/features/additional-fighting-style
     AdditionalFighterFightingStyle,
-    /// match: https://www.dnd5eapi.co/api/features/ranger-fighting-style
-    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-archery
-    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-defense
-    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-dueling
-    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style-two-weapon-fighting
+    /// https://www.dnd5eapi.co/api/features/ranger-fighting-style
     RangerFightingStyle,
     /// https://www.dnd5eapi.co/api/features/bonus-proficiencies
     BonusBardProficiency,
-    HeavyArmorProficiency,
-    /// https://www.dnd5eapi.co/api/features/beast-spells
-    /// This feature will not be implemented for now
-    /// TODO: Implement
-    BeastSpells,
     /// Used for
     /// https://www.dnd5eapi.co/api/features/bard-expertise-1
     /// https://www.dnd5eapi.co/api/features/bard-expertise-2
@@ -140,31 +130,40 @@ pub enum CustomLevelFeature {
     /// https://www.dnd5eapi.co/api/features/mystic-arcanum-9th-level
     ChooseOne6thLevelSpellFromWarlockList,
     /// https://www.dnd5eapi.co/api/features/paladin-fighting-style
-    PaladinFightingStyle,
-    /// https://www.dnd5eapi.co/api/features/primal-champion
-    PrimalChampion,
-    /// Features with this type are going to be written in the character sheet only
-    Passive,
-    /// This is for features already handled by other parts of the code and not needed to be managed as "features"
-    Ignored,
+    PaladinFightingStyle
 }
 
-impl CustomLevelFeature {
-    pub fn identify(index: String) -> Option<CustomLevelFeature> {
-        use CustomLevelFeature::*;
+pub enum SheetLevelFeatureType {
+    /// https://www.dnd5eapi.co/api/features/primal-champion
+    PrimalChampion,
+}
+
+pub enum CustomLevelFeatureType {
+    Choosable(ChoosableCustomLevelFeature),
+    Sheet(SheetLevelFeatureType),
+    Passive,
+    Ignored
+}
+
+impl ChoosableCustomLevelFeature {
+    pub fn identify(index: String) -> Option<CustomLevelFeatureType> {
+        use ChoosableCustomLevelFeature::*;
+        use CustomLevelFeatureType::*;
+        use SheetLevelFeatureType::*;
         match index.as_str() {
-            "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" | "druid-circle" | "primal-path" | "martial-archetype" | "otherworldly-patron" => Some(SubclassChoice),
-            "pact-boon" => Some(WarlockPact),
-            "additional-fighting-style" => Some(AdditionalFighterFightingStyle),
-            "beast-spells" => Some(BeastSpells),
-            "bonus-proficiencies" => Some(BonusBardProficiency),
-            "bonus-proficiency" => Some(HeavyArmorProficiency),
+            // Ignore all subclass choices since we have only one subclass per class
+            "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" | "druid-circle" | "primal-path" | "martial-archetype" | "otherworldly-patron" => Some(Ignored),
+            "pact-boon" => Some(Choosable(WarlockPact)),
+            "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
+            "beast-spells" => Some(Ignored),
+            "bonus-proficiencies" => Some(Choosable(BonusBardProficiency)),
+            "bonus-proficiency" => Some(Passive),
             "additional-magical-secrets" | "bonus-cantrip" => Some(Ignored),
             "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => Some(Ignored),
-            "magical-secrets-1" | "magical-secrets-2" | "magical-secrets-3" => Some(ChooseTwoSpellForAnyClass),
-            "mystic-arcanum-6th-level" | "mystic-arcanum-7th-level" | "mystic-arcanum-8th-level" | "mystic-arcanum-9th-level" => Some(ChooseOne6thLevelSpellFromWarlockList),
-            "paladin-fighting-style" => Some(PaladinFightingStyle),
-            "primal-champion" => Some(PrimalChampion),
+            "magical-secrets-1" | "magical-secrets-2" | "magical-secrets-3" => Some(Choosable(ChooseTwoSpellForAnyClass)),
+            "mystic-arcanum-6th-level" | "mystic-arcanum-7th-level" | "mystic-arcanum-8th-level" | "mystic-arcanum-9th-level" => Some(Choosable(ChooseOne6thLevelSpellFromWarlockList)),
+            "paladin-fighting-style" => Some(Choosable(PaladinFightingStyle)),
+            "primal-champion" => Some(Sheet(PrimalChampion)),
             // TODO: Implement https://www.dnd5eapi.co/api/features/diamond-soul
             "diamond-soul" => Some(Passive),
             "arcane-recovery" | "archdruid" | "aura-improvements" | "aura-of-courage" | "aura-of-devotion" | "aura-of-protection"
@@ -191,11 +190,11 @@ impl CustomLevelFeature {
             | "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed" | "wild-shape-cr-1-or-below" | "ki" | "monk-unarmored-defense"
             | "perfect-self" | "slippery-mind" | "mindless-rage" | "barbarian-unarmored-defense"
             | "divine-intervention-improvement" | "persistent-rage" | "evocation-savant" | "potent-cantrip" | "second-story-work" => Some(Passive),
-            x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(MultiplyTwoSkillProficiency),
+            x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
             x if x.starts_with("spellcasting-") => Some(Ignored),
             // Ignore all eldritch invocations since they are unlocked using invocation known table
             x if x.starts_with("eldritch-invocation-") => Some(Ignored),
-            x if x.contains("ability-score-improvement") => Some(AbilityScoreImprovement),
+            x if x.contains("ability-score-improvement") => Some(Choosable(AbilityScoreImprovement)),
             _ => None
         }
     }
@@ -234,7 +233,7 @@ impl Class {
         Ok(spellcasting_slots)
     }
 
-    pub async fn set_level(&mut self, new_level: u8) -> Result<Vec<CustomLevelFeature>, ApiError> {
+    pub async fn set_level(&mut self, new_level: u8) -> Result<Vec<ChoosableCustomLevelFeature>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
             level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", self.1.level, new_level))),
@@ -249,14 +248,22 @@ impl Class {
         let mut pending_features = vec![];
 
         features.iter().filter_map(|feature| {
-            CustomLevelFeature::identify(feature.index.clone())
+            ChoosableCustomLevelFeature::identify(feature.index.clone())
         }).for_each(|feature| {
             match feature {
-                CustomLevelFeature::BeastSpells | CustomLevelFeature::SubclassChoice | CustomLevelFeature::Ignored => {}
-                CustomLevelFeature::ProficiencyInAllSkill => {}
-                _ => {
+                CustomLevelFeatureType::Passive => {}
+                CustomLevelFeatureType::Choosable(feature) => {
                     pending_features.push(feature);
                 }
+                CustomLevelFeatureType::Sheet(feature) => {
+                    match feature {
+                        SheetLevelFeatureType::PrimalChampion => {
+                            self.1.abilities_addon.strength.score += 4;
+                            self.1.abilities_addon.dexterity.score += 4;
+                        }
+                    }
+                }
+                Ignored => {}
             }
         });
 
@@ -279,13 +286,13 @@ impl Class {
 
         // Remove all identifiable features
         let mut features: Vec<String> = features.into_iter().filter(|feature| {
-            match CustomLevelFeature::identify(feature.index.clone()) {
+            match ChoosableCustomLevelFeature::identify(feature.index.clone()) {
                 None => {
                     true
                 }
                 Some(custom_type) => {
                     match custom_type {
-                        CustomLevelFeature::Passive => passive,
+                        CustomLevelFeatureType::Passive => passive,
                         _ => false
                     }
                 }
