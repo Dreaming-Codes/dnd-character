@@ -6,6 +6,7 @@ use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
 use lazy_static::lazy_static;
 use serde::{Serialize};
+use crate::abilities::ABILITY_NAMES;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::classes::Class;
 
@@ -131,6 +132,78 @@ pub enum ChoosableCustomLevelFeature {
     ChooseOne6thLevelSpellFromWarlockList,
     /// https://www.dnd5eapi.co/api/features/paladin-fighting-style
     PaladinFightingStyle
+}
+
+impl ChoosableCustomLevelFeature {
+    pub fn to_options(&self) -> Vec<Vec<&str>> {
+        match self {
+            ChoosableCustomLevelFeature::AbilityScoreImprovement => {
+                vec![
+                    // I know that I'm calling twice to_vec() but the compiler is smart enough to optimize it (magic).
+                    // You don't know better, I've checked the assembly.
+                    // Praise the compiler!
+                    ABILITY_NAMES.to_vec(),
+                    ABILITY_NAMES.to_vec(),
+                ]
+            }
+            ChoosableCustomLevelFeature::WarlockPact => {
+                vec![
+                    vec!["pact-of-the-chain", "pact-of-the-blade", "pact-of-the-tome"]
+                ]
+            }
+            ChoosableCustomLevelFeature::AdditionalFighterFightingStyle => {
+                vec![
+                    vec![
+                        "fighter-fighting-style-archery",
+                        "fighter-fighting-style-defense",
+                        "fighter-fighting-style-dueling",
+                        "fighter-fighting-style-great-weapon-fighting",
+                        "fighter-fighting-style-protection",
+                        "fighter-fighting-style-two-weapon-fighting"
+                    ]
+                ]
+            }
+            ChoosableCustomLevelFeature::RangerFightingStyle => {
+                vec![
+                    vec![
+                        "ranger-fighting-style-archery",
+                        "ranger-fighting-style-defense",
+                        "ranger-fighting-style-dueling",
+                        "ranger-fighting-style-two-weapon-fighting"
+                    ]
+                ]
+            }
+            ChoosableCustomLevelFeature::BonusBardProficiency => {
+                vec![
+                    ABILITY_NAMES.to_vec(),
+                    ABILITY_NAMES.to_vec(),
+                    ABILITY_NAMES.to_vec()
+                ]
+            }
+            ChoosableCustomLevelFeature::MultiplyTwoSkillProficiency => {
+                // TODO: Implement this
+                vec![vec![]]
+            }
+            ChoosableCustomLevelFeature::ChooseTwoSpellForAnyClass => {
+                // TODO: Implement this
+                vec![vec![]]
+            }
+            ChoosableCustomLevelFeature::ChooseOne6thLevelSpellFromWarlockList => {
+                // TODO: Implement this when other warlock features are implemented
+                vec![vec![]]
+            }
+            ChoosableCustomLevelFeature::PaladinFightingStyle => {
+                vec![
+                    vec![
+                        "fighting-style-defense",
+                        "fighting-style-dueling",
+                        "fighting-style-great-weapon-fighting",
+                        "fighting-style-protection"
+                    ]
+                ]
+            }
+        }
+    }
 }
 
 pub enum SheetLevelFeatureType {
