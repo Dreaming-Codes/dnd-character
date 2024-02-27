@@ -6,7 +6,6 @@ use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
 use lazy_static::lazy_static;
 use serde::{Serialize};
-use crate::abilities::ABILITY_NAMES;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::classes::Class;
 
@@ -138,10 +137,8 @@ impl ChoosableCustomLevelFeature {
     pub fn to_options(&self) -> Vec<Vec<&str>> {
         match self {
             ChoosableCustomLevelFeature::AbilityScoreImprovement => {
+                const ABILITY_NAMES: [&str; 6] = ["strength+2", "dexterity+2", "constitution+2", "intelligence+2", "wisdom+2", "charisma+2"];
                 vec![
-                    // I know that I'm calling twice to_vec() but the compiler is smart enough to optimize it (magic).
-                    // You don't know better, I've checked the assembly.
-                    // Praise the compiler!
                     ABILITY_NAMES.to_vec(),
                     ABILITY_NAMES.to_vec(),
                 ]
@@ -174,6 +171,8 @@ impl ChoosableCustomLevelFeature {
                 ]
             }
             ChoosableCustomLevelFeature::BonusBardProficiency => {
+                const ABILITY_NAMES: [&str; 6] = ["strength-proficiency", "dexterity-proficiency", "constitution-proficiency", "intelligence-proficiency", "wisdom-proficiency", "charisma-proficiency"];
+                
                 vec![
                     ABILITY_NAMES.to_vec(),
                     ABILITY_NAMES.to_vec(),

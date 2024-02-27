@@ -22,8 +22,6 @@ impl AbilityScore {
     }
 }
 
-pub const ABILITY_NAMES: [&str; 6] = ["strength", "dexterity", "constitution", "intelligence", "wisdom", "charisma"];
-
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]

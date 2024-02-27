@@ -12,6 +12,7 @@ repository = "https://github.com/Dreaming-Codes/dnd-character"
 
 [dependencies]
 anyhow = "1.0.80"
+const_format = "0.2.32"
 cynic = { version = "3.4.3", features = ["http-reqwest", "serde_json"], optional = true }
 lazy_static = "1.4.0"
 regex = "1.10.3"
