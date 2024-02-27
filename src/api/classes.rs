@@ -143,8 +143,6 @@ pub enum CustomLevelFeature {
     PaladinFightingStyle,
     /// https://www.dnd5eapi.co/api/features/primal-champion
     PrimalChampion,
-    /// https://www.dnd5eapi.co/api/features/diamond-soul
-    ProficiencyInAllSkill,
     /// Features with this type are going to be written in the character sheet only
     Passive,
     /// This is for features already handled by other parts of the code and not needed to be managed as "features"
@@ -167,7 +165,8 @@ impl CustomLevelFeature {
             "mystic-arcanum-6th-level" | "mystic-arcanum-7th-level" | "mystic-arcanum-8th-level" | "mystic-arcanum-9th-level" => Some(ChooseOne6thLevelSpellFromWarlockList),
             "paladin-fighting-style" => Some(PaladinFightingStyle),
             "primal-champion" => Some(PrimalChampion),
-            "diamond-soul" => Some(ProficiencyInAllSkill),
+            // TODO: Implement https://www.dnd5eapi.co/api/features/diamond-soul
+            "diamond-soul" => Some(Passive),
             "arcane-recovery" | "archdruid" | "aura-improvements" | "aura-of-courage" | "aura-of-devotion" | "aura-of-protection"
             | "blessed-healer" | "blindsense" | "brutal-critical-1-dice" | "brutal-critical-2-dice" | "brutal-critical-3-dice"
             | "danger-sense" | "dark-ones-blessing" | "dark-ones-own-luck" | "defensive-tactics" | "defensive-tactics-steel-will"
