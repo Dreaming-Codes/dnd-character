@@ -266,7 +266,7 @@ impl Class {
         Ok(pending_features)
     }
 
-    pub async fn get_levels_features(&self, from_level: Option<u8>) -> Result<Vec<String>, ApiError> {
+    pub async fn get_levels_features(&self, from_level: Option<u8>, passive: bool) -> Result<Vec<String>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
             level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", from_level.unwrap_or(0), self.1.level))),
@@ -286,7 +286,7 @@ impl Class {
                 }
                 Some(custom_type) => {
                     match custom_type {
-                        CustomLevelFeature::Passive => true,
+                        CustomLevelFeature::Passive => passive,
                         _ => false
                     }
                 }
