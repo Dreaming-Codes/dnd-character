@@ -146,7 +146,7 @@ impl ChoosableCustomLevelFeature {
     pub fn to_options(&self) -> Vec<Vec<String>> {
         match self {
             ChoosableCustomLevelFeature::AbilityScoreImprovement => {
-                let ability_names = ABILITY_NAMES.iter().map(|ability| format!("{}+2", ability)).collect::<Vec<String>>();
+                let ability_names = ABILITY_NAMES.iter().map(|ability| format!("{}+1", ability)).collect::<Vec<String>>();
 
                 vec![
                     ability_names.clone(),
