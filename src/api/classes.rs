@@ -6,6 +6,7 @@ use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
 use lazy_static::lazy_static;
 use serde::{Serialize};
+use crate::abilities::ABILITY_NAMES;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::classes::Class;
 
@@ -134,50 +135,52 @@ pub enum ChoosableCustomLevelFeature {
     PaladinFightingStyle
 }
 
+
 impl ChoosableCustomLevelFeature {
-    pub fn to_options(&self) -> Vec<Vec<&str>> {
+    pub fn to_options(&self) -> Vec<Vec<String>> {
         match self {
             ChoosableCustomLevelFeature::AbilityScoreImprovement => {
-                const ABILITY_NAMES: [&str; 6] = ["strength+2", "dexterity+2", "constitution+2", "intelligence+2", "wisdom+2", "charisma+2"];
+                let ability_names = ABILITY_NAMES.iter().map(|ability| format!("{}+2", ability)).collect::<Vec<String>>();
+
                 vec![
-                    ABILITY_NAMES.to_vec(),
-                    ABILITY_NAMES.to_vec(),
+                    ability_names.clone(),
+                    ability_names,
                 ]
             }
             ChoosableCustomLevelFeature::WarlockPact => {
                 vec![
-                    vec!["pact-of-the-chain", "pact-of-the-blade", "pact-of-the-tome"]
+                    vec!["pact-of-the-chain".to_string(), "pact-of-the-blade".to_string(), "pact-of-the-tome".to_string()]
                 ]
             }
             ChoosableCustomLevelFeature::AdditionalFighterFightingStyle => {
                 vec![
                     vec![
-                        "fighter-fighting-style-archery",
-                        "fighter-fighting-style-defense",
-                        "fighter-fighting-style-dueling",
-                        "fighter-fighting-style-great-weapon-fighting",
-                        "fighter-fighting-style-protection",
-                        "fighter-fighting-style-two-weapon-fighting"
+                        "fighter-fighting-style-archery".to_string(),
+                        "fighter-fighting-style-defense".to_string(),
+                        "fighter-fighting-style-dueling".to_string(),
+                        "fighter-fighting-style-great-weapon-fighting".to_string(),
+                        "fighter-fighting-style-protection".to_string(),
+                        "fighter-fighting-style-two-weapon-fighting".to_string()
                     ]
                 ]
             }
             ChoosableCustomLevelFeature::RangerFightingStyle => {
                 vec![
                     vec![
-                        "ranger-fighting-style-archery",
-                        "ranger-fighting-style-defense",
-                        "ranger-fighting-style-dueling",
-                        "ranger-fighting-style-two-weapon-fighting"
+                        "ranger-fighting-style-archery".to_string(),
+                        "ranger-fighting-style-defense".to_string(),
+                        "ranger-fighting-style-dueling".to_string(),
+                        "ranger-fighting-style-two-weapon-fighting".to_string()
                     ]
                 ]
             }
             ChoosableCustomLevelFeature::BonusBardProficiency => {
-                const ABILITY_NAMES: [&str; 6] = ["strength-proficiency", "dexterity-proficiency", "constitution-proficiency", "intelligence-proficiency", "wisdom-proficiency", "charisma-proficiency"];
-                
+                let ability_names = ABILITY_NAMES.iter().map(|ability| format!("{}-proficiency", ability)).collect::<Vec<String>>();
+
                 vec![
-                    ABILITY_NAMES.to_vec(),
-                    ABILITY_NAMES.to_vec(),
-                    ABILITY_NAMES.to_vec()
+                    ability_names.clone(),
+                    ability_names.clone(),
+                    ability_names,
                 ]
             }
             ChoosableCustomLevelFeature::MultiplyTwoSkillProficiency => {
@@ -195,10 +198,10 @@ impl ChoosableCustomLevelFeature {
             ChoosableCustomLevelFeature::PaladinFightingStyle => {
                 vec![
                     vec![
-                        "fighting-style-defense",
-                        "fighting-style-dueling",
-                        "fighting-style-great-weapon-fighting",
-                        "fighting-style-protection"
+                        "fighting-style-defense".to_string(),
+                        "fighting-style-dueling".to_string(),
+                        "fighting-style-great-weapon-fighting".to_string(),
+                        "fighting-style-protection".to_string()
                     ]
                 ]
             }
