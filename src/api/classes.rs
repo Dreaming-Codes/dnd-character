@@ -55,7 +55,8 @@ pub struct Level {
     pub spellcasting: Option<LevelSpellcasting>,
 }
 
-#[derive(cynic::QueryFragment, Debug, Serialize)]
+#[derive(cynic::QueryFragment, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct LevelSpellcasting {
     #[cynic(rename = "cantrips_known")]
     pub cantrips_known: Option<i32>,
@@ -104,7 +105,7 @@ pub struct IntFilter(pub String);
 pub struct StringFilter(pub String);
 
 #[derive(Clone)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub enum ChoosableCustomLevelFeature {
     /// Ask the user to spend 2 points in any ability score
@@ -141,7 +142,7 @@ impl ChoosableCustomLevelFeature {
     pub fn to_string(&self) -> &str {
         serde_variant::to_variant_name(self).unwrap()
     }
-    
+
     pub fn to_options(&self) -> Vec<Vec<String>> {
         match self {
             ChoosableCustomLevelFeature::AbilityScoreImprovement => {

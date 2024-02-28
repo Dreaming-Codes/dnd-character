@@ -92,6 +92,7 @@ impl Character {
         Ok(features)
     }
 
+    #[cfg(feature = "serde")]
     pub async fn rich_print(&self) -> Result<String, ApiError> {
         let spellcasting_slots = self.get_spellcasting_slots().await?;
         let features = self.get_features(true).await?;
