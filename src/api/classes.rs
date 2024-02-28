@@ -139,7 +139,7 @@ pub enum ChoosableCustomLevelFeature {
 
 impl ChoosableCustomLevelFeature {
     #[cfg(feature = "serde")]
-    pub fn to_string(&self) -> &str {
+    pub fn as_index_str(&self) -> &str {
         serde_variant::to_variant_name(self).unwrap()
     }
 
