@@ -5,7 +5,6 @@ use reqwest::Client;
 use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
 use lazy_static::lazy_static;
-use serde::{Serialize};
 use crate::abilities::ABILITY_NAMES;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::classes::Class;
@@ -105,6 +104,8 @@ pub struct IntFilter(pub String);
 pub struct StringFilter(pub String);
 
 #[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub enum ChoosableCustomLevelFeature {
     /// Ask the user to spend 2 points in any ability score
     AbilityScoreImprovement,
@@ -135,8 +136,12 @@ pub enum ChoosableCustomLevelFeature {
     PaladinFightingStyle
 }
 
-
 impl ChoosableCustomLevelFeature {
+    #[cfg(feature = "serde")]
+    pub fn to_string(&self) -> &str {
+        serde_variant::to_variant_name(self).unwrap()
+    }
+    
     pub fn to_options(&self) -> Vec<Vec<String>> {
         match self {
             ChoosableCustomLevelFeature::AbilityScoreImprovement => {
