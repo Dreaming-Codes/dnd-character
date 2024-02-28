@@ -103,6 +103,7 @@ pub struct IntFilter(pub String);
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct StringFilter(pub String);
 
+#[derive(Clone)]
 pub enum ChoosableCustomLevelFeature {
     /// Ask the user to spend 2 points in any ability score
     AbilityScoreImprovement,
