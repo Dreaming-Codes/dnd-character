@@ -63,6 +63,7 @@ impl Default for ClassProperties {
             subclass: None,
             spell_casting: None,
             fighting_style: None,
+            abilities_modifiers: Abilities::default(),
         }
     }
 }
