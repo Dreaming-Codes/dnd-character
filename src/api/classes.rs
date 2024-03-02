@@ -509,10 +509,10 @@ impl Class {
 
         match option {
             StrengthPlusOne | DexterityPlusOne | ConstitutionPlusOne | IntelligencePlusOne | WisdomPlusOne | CharismaPlusOne => {
-                println!("Ability score improvement not yet implemented");
+                self.increase_score(option)
             }
             BardProficiencyStrength | BardProficiencyDexterity | BardProficiencyConstitution | BardProficiencyIntelligence | BardProficiencyWisdom | BardProficiencyCharisma => {
-                println!("Proficency setting not yet implemented");
+                self.set_proficiency(option)
             }
             PactOfTheChain | PactOfTheBlade | PactOfTheTome => {
                 println!("Pact of the Chain, Blade or Tome not yet implemented");
@@ -524,5 +524,54 @@ impl Class {
                 self.1.fighting_style.replace(option.as_index_str().to_string());
             }
         }
+    }
+
+    fn increase_score(&mut self, option: ChoosableCustomLevelFeatureOption) {
+        match option {
+            ChoosableCustomLevelFeatureOption::StrengthPlusOne => {
+                self.1.abilities_modifiers.strength.score += 1;
+            }
+            ChoosableCustomLevelFeatureOption::DexterityPlusOne => {
+                self.1.abilities_modifiers.dexterity.score += 1;
+            }
+            ChoosableCustomLevelFeatureOption::ConstitutionPlusOne => {
+                self.1.abilities_modifiers.constitution.score += 1;
+            }
+            ChoosableCustomLevelFeatureOption::IntelligencePlusOne => {
+                self.1.abilities_modifiers.intelligence.score += 1;
+            }
+            ChoosableCustomLevelFeatureOption::WisdomPlusOne => {
+                self.1.abilities_modifiers.wisdom.score += 1;
+            }
+            ChoosableCustomLevelFeatureOption::CharismaPlusOne => {
+                self.1.abilities_modifiers.charisma.score += 1;
+            }
+            _ => {}
+        }
+    }
+
+    fn set_proficiency(&mut self, option: ChoosableCustomLevelFeatureOption) {
+        match option {
+            ChoosableCustomLevelFeatureOption::BardProficiencyStrength => {
+                self.1.abilities_modifiers.strength.proficiency = true;
+            }
+            ChoosableCustomLevelFeatureOption::BardProficiencyDexterity => {
+                self.1.abilities_modifiers.dexterity.proficiency = true;
+            }
+            ChoosableCustomLevelFeatureOption::BardProficiencyConstitution => {
+                self.1.abilities_modifiers.constitution.proficiency = true;
+            }
+            ChoosableCustomLevelFeatureOption::BardProficiencyIntelligence => {
+                self.1.abilities_modifiers.intelligence.proficiency = true;
+            }
+            ChoosableCustomLevelFeatureOption::BardProficiencyWisdom => {
+                self.1.abilities_modifiers.wisdom.proficiency = true;
+            }
+            ChoosableCustomLevelFeatureOption::BardProficiencyCharisma => {
+                self.1.abilities_modifiers.charisma.proficiency = true;
+            }
+            _ => {}
+        }
+        
     }
 }

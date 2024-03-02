@@ -1,6 +1,7 @@
 use std::collections::{HashMap};
 use std::hash::Hash;
 use serde::{Deserialize, Serialize};
+use crate::abilities::Abilities;
 
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -52,6 +53,7 @@ pub struct ClassProperties {
     /// Indexes from https://www.dnd5eapi.co/api/spells/
     pub spell_casting: Option<ClassSpellCasting>,
     pub fighting_style: Option<String>,
+    pub abilities_modifiers: Abilities,
 }
 
 impl Default for ClassProperties {
