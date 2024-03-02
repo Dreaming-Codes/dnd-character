@@ -115,7 +115,7 @@ impl<'de> Deserialize<'de> for Character {
 
         // Iterate over the classes and set the `character` field
         for class in character.classes.borrow_mut().0.iter_mut() {
-            class.1.1.set_parent(Rc::downgrade(&character.abilities_score));
+            class.1.1.set_abilities(Rc::downgrade(&character.abilities_score));
         }
 
         Ok(character)
@@ -148,7 +148,7 @@ impl Character {
         };
 
         for class in character.classes.borrow_mut().0.iter_mut() {
-            class.1.1.set_parent(Rc::downgrade(&character.abilities_score));
+            class.1.1.set_abilities(Rc::downgrade(&character.abilities_score));
         }
 
         character

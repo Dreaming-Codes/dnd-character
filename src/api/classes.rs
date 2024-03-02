@@ -5,7 +5,6 @@ use reqwest::Client;
 use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
 use lazy_static::lazy_static;
-use crate::abilities::ABILITY_NAMES;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::classes::Class;
 
@@ -137,16 +136,65 @@ pub enum ChoosableCustomLevelFeature {
     PaladinFightingStyle
 }
 
+#[derive(Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+pub enum ChoosableCustomLevelFeatureOption {
+    StrengthPlusOne,
+    DexterityPlusOne,
+    ConstitutionPlusOne,
+    IntelligencePlusOne,
+    WisdomPlusOne,
+    CharismaPlusOne,
+
+    PactOfTheChain,
+    PactOfTheBlade,
+    PactOfTheTome,
+
+    FighterFightingStyleArchery,
+    FighterFightingStyleDefense,
+    FighterFightingStyleDueling,
+    FighterFightingStyleGreatWeaponFighting,
+    FighterFightingStyleProtection,
+    FighterFightingStyleTwoWeaponFighting,
+
+    RangerFightingStyleArchery,
+    RangerFightingStyleDefense,
+    RangerFightingStyleDueling,
+    RangerFightingStyleTwoWeaponFighting,
+
+    BardProficiencyStrength,
+    BardProficiencyDexterity,
+    BardProficiencyConstitution,
+    BardProficiencyIntelligence,
+    BardProficiencyWisdom,
+    BardProficiencyCharisma,
+
+    FightingStyleDefense,
+    FightingStyleDueling,
+    FightingStyleGreatWeaponFighting,
+    FightingStyleProtection
+}
+
+impl ChoosableCustomLevelFeatureOption {
+    #[cfg(feature = "serde")]
+    pub fn as_index_str(&self) -> &str {
+        serde_variant::to_variant_name(self).unwrap()
+    }
+}
+
 impl ChoosableCustomLevelFeature {
     #[cfg(feature = "serde")]
     pub fn as_index_str(&self) -> &str {
         serde_variant::to_variant_name(self).unwrap()
     }
 
-    pub fn to_options(&self) -> Vec<Vec<String>> {
+    pub fn to_options(&self) -> Vec<Vec<ChoosableCustomLevelFeatureOption>> {
+        use ChoosableCustomLevelFeatureOption::*;
+
         match self {
             ChoosableCustomLevelFeature::AbilityScoreImprovement => {
-                let ability_names = ABILITY_NAMES.iter().map(|ability| format!("{}+1", ability)).collect::<Vec<String>>();
+                let ability_names = vec![StrengthPlusOne, DexterityPlusOne, ConstitutionPlusOne, IntelligencePlusOne, WisdomPlusOne, CharismaPlusOne];
 
                 vec![
                     ability_names.clone(),
@@ -155,33 +203,33 @@ impl ChoosableCustomLevelFeature {
             }
             ChoosableCustomLevelFeature::WarlockPact => {
                 vec![
-                    vec!["pact-of-the-chain".to_string(), "pact-of-the-blade".to_string(), "pact-of-the-tome".to_string()]
+                    vec![PactOfTheChain, PactOfTheBlade, PactOfTheTome]
                 ]
             }
             ChoosableCustomLevelFeature::AdditionalFighterFightingStyle => {
                 vec![
                     vec![
-                        "fighter-fighting-style-archery".to_string(),
-                        "fighter-fighting-style-defense".to_string(),
-                        "fighter-fighting-style-dueling".to_string(),
-                        "fighter-fighting-style-great-weapon-fighting".to_string(),
-                        "fighter-fighting-style-protection".to_string(),
-                        "fighter-fighting-style-two-weapon-fighting".to_string()
+                        FighterFightingStyleArchery,
+                        FighterFightingStyleDefense,
+                        FighterFightingStyleDueling,
+                        FighterFightingStyleGreatWeaponFighting,
+                        FighterFightingStyleProtection,
+                        FighterFightingStyleTwoWeaponFighting
                     ]
                 ]
             }
             ChoosableCustomLevelFeature::RangerFightingStyle => {
                 vec![
                     vec![
-                        "ranger-fighting-style-archery".to_string(),
-                        "ranger-fighting-style-defense".to_string(),
-                        "ranger-fighting-style-dueling".to_string(),
-                        "ranger-fighting-style-two-weapon-fighting".to_string()
+                        RangerFightingStyleArchery,
+                        RangerFightingStyleDefense,
+                        RangerFightingStyleDueling,
+                        RangerFightingStyleTwoWeaponFighting
                     ]
                 ]
             }
             ChoosableCustomLevelFeature::BonusBardProficiency => {
-                let ability_names = ABILITY_NAMES.iter().map(|ability| format!("{}-proficiency", ability)).collect::<Vec<String>>();
+                let ability_names = vec![BardProficiencyStrength, BardProficiencyDexterity, BardProficiencyConstitution, BardProficiencyIntelligence, BardProficiencyWisdom, BardProficiencyCharisma];
 
                 vec![
                     ability_names.clone(),
@@ -204,10 +252,10 @@ impl ChoosableCustomLevelFeature {
             ChoosableCustomLevelFeature::PaladinFightingStyle => {
                 vec![
                     vec![
-                        "fighting-style-defense".to_string(),
-                        "fighting-style-dueling".to_string(),
-                        "fighting-style-great-weapon-fighting".to_string(),
-                        "fighting-style-protection".to_string()
+                        FightingStyleDefense,
+                        FightingStyleDueling,
+                        FightingStyleGreatWeaponFighting,
+                        FightingStyleProtection
                     ]
                 ]
             }
@@ -341,7 +389,7 @@ impl Class {
                     match feature {
                         SheetLevelFeatureType::PrimalChampion => {
                             println!("Primal Champion");
-                            if let Some(abilities) = self.1.get_parent() {
+                            if let Some(abilities) = self.1.get_abilities() {
                                 let mut abilities = abilities.borrow_mut();
                                 abilities.strength.score += 4;
                                 abilities.constitution.score += 4;
@@ -439,5 +487,57 @@ impl Class {
 
 
         Ok(features)
+    }
+
+    pub fn apply_option(&mut self, option: ChoosableCustomLevelFeatureOption) {
+        use ChoosableCustomLevelFeatureOption::*;
+
+        match option {
+            StrengthPlusOne | DexterityPlusOne | ConstitutionPlusOne | IntelligencePlusOne | WisdomPlusOne | CharismaPlusOne => {
+                self.increase_score(option);
+            }
+            BardProficiencyStrength | BardProficiencyDexterity | BardProficiencyConstitution | BardProficiencyIntelligence | BardProficiencyWisdom | BardProficiencyCharisma => {
+                self.set_proficiency(option);
+            }
+            PactOfTheChain | PactOfTheBlade | PactOfTheTome => {
+                println!("Pact of the Chain, Blade or Tome not yet implemented");
+            }
+            FighterFightingStyleArchery | FighterFightingStyleDefense | FighterFightingStyleDueling | FighterFightingStyleGreatWeaponFighting
+            | FighterFightingStyleProtection | FighterFightingStyleTwoWeaponFighting | RangerFightingStyleArchery | RangerFightingStyleDefense
+            | RangerFightingStyleDueling | RangerFightingStyleTwoWeaponFighting | FightingStyleDefense | FightingStyleDueling
+            | FightingStyleGreatWeaponFighting | FightingStyleProtection => {
+                self.1.fighting_style.replace(option.as_index_str().to_string());
+            }
+        }
+    }
+
+    fn increase_score(&mut self, option: ChoosableCustomLevelFeatureOption)
+    {
+        if let Some(abilities) = self.1.get_abilities() {
+            match option {
+                ChoosableCustomLevelFeatureOption::StrengthPlusOne => abilities.borrow_mut().strength.score += 1,
+                ChoosableCustomLevelFeatureOption::DexterityPlusOne => abilities.borrow_mut().dexterity.score += 1,
+                ChoosableCustomLevelFeatureOption::ConstitutionPlusOne => abilities.borrow_mut().constitution.score += 1,
+                ChoosableCustomLevelFeatureOption::IntelligencePlusOne => abilities.borrow_mut().intelligence.score += 1,
+                ChoosableCustomLevelFeatureOption::WisdomPlusOne => abilities.borrow_mut().wisdom.score += 1,
+                ChoosableCustomLevelFeatureOption::CharismaPlusOne => abilities.borrow_mut().charisma.score += 1,
+                _ => {}
+            }
+        }
+    }
+
+    fn set_proficiency(&mut self, option: ChoosableCustomLevelFeatureOption)
+    {
+        if let Some(abilities) = self.1.get_abilities() {
+            match option {
+                ChoosableCustomLevelFeatureOption::BardProficiencyStrength => abilities.borrow_mut().strength.proficiency = true,
+                ChoosableCustomLevelFeatureOption::BardProficiencyDexterity => abilities.borrow_mut().dexterity.proficiency = true,
+                ChoosableCustomLevelFeatureOption::BardProficiencyConstitution => abilities.borrow_mut().constitution.proficiency = true,
+                ChoosableCustomLevelFeatureOption::BardProficiencyIntelligence => abilities.borrow_mut().intelligence.proficiency = true,
+                ChoosableCustomLevelFeatureOption::BardProficiencyWisdom => abilities.borrow_mut().wisdom.proficiency = true,
+                ChoosableCustomLevelFeatureOption::BardProficiencyCharisma => abilities.borrow_mut().charisma.proficiency = true,
+                _ => {}
+            }
+        }
     }
 }

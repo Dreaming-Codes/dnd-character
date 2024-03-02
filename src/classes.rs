@@ -50,29 +50,30 @@ pub struct UsableSlots {
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ClassProperties {
     #[serde(skip)]
-    parent: Weak<RefCell<Abilities>>,
+    abilities: Weak<RefCell<Abilities>>,
     /// The level of the class
     pub level: u8,
     /// Index from https://www.dnd5eapi.co/api/subclasses/
     pub subclass: Option<String>,
     /// Indexes from https://www.dnd5eapi.co/api/spells/
-    pub spell_casting: Option<ClassSpellCasting>
+    pub spell_casting: Option<ClassSpellCasting>,
+    pub fighting_style: Option<String>,
 }
 
 impl ClassProperties {
-    pub fn set_parent(&mut self, parent: Weak<RefCell<Abilities>>) {
-        self.parent = parent;
+    pub fn set_abilities(&mut self, parent: Weak<RefCell<Abilities>>) {
+        self.abilities = parent;
     }
 
-    pub fn get_parent(&self) -> Option<Rc<RefCell<Abilities>>> {
-        self.parent.upgrade()
+    pub fn get_abilities(&self) -> Option<Rc<RefCell<Abilities>>> {
+        self.abilities.upgrade()
     }
 }
 
 impl Default for ClassProperties {
     fn default() -> Self {
         Self {
-            parent: Default::default(),
+            abilities: Default::default(),
             level: 1,
             subclass: None,
             spell_casting: None
