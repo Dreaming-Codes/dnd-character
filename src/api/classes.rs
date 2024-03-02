@@ -5,6 +5,7 @@ use reqwest::Client;
 use crate::api::shared::ApiError;
 use cynic::QueryBuilder;
 use lazy_static::lazy_static;
+use serde_json::json;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::classes::Class;
 
@@ -136,9 +137,9 @@ pub enum ChoosableCustomLevelFeature {
     PaladinFightingStyle
 }
 
-#[derive(Clone)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize))]
-#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[derive(Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "kebab-case"))]
 pub enum ChoosableCustomLevelFeatureOption {
     StrengthPlusOne,
     DexterityPlusOne,
@@ -180,6 +181,20 @@ impl ChoosableCustomLevelFeatureOption {
     #[cfg(feature = "serde")]
     pub fn as_index_str(&self) -> &str {
         serde_variant::to_variant_name(self).unwrap()
+    }
+
+    #[cfg(feature = "serde")]
+    pub fn from_index_str(index: &str) -> Option<ChoosableCustomLevelFeatureOption> {
+        #[derive(serde::Deserialize)]
+        struct Helper {
+            value: ChoosableCustomLevelFeatureOption
+        }
+
+        let json = json!({
+            "value": index
+        });
+
+        serde_json::from_value::<Helper>(json).map(|helper| helper.value).ok()
     }
 }
 

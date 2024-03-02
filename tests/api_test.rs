@@ -1,5 +1,6 @@
 #![cfg(feature = "api")]
 
+use dnd_character::api::classes::ChoosableCustomLevelFeatureOption;
 use dnd_character::Character;
 
 #[tokio::test]
@@ -33,4 +34,17 @@ async fn primal_champion(){
 
     assert_eq!(dnd_character.abilities_score.strength.score, 4);
     assert_eq!(dnd_character.abilities_score.constitution.score, 4);
+}
+
+#[tokio::test]
+async fn choosable_custom_level_feature_option_serialization() {
+    let index = ChoosableCustomLevelFeatureOption::PactOfTheTome.as_index_str();
+    
+    assert_eq!(index, "pact-of-the-tome");
+
+    if let Some(ChoosableCustomLevelFeatureOption::PactOfTheTome) = ChoosableCustomLevelFeatureOption::from_index_str(index) {
+        // success, do nothing
+    } else {
+        assert!(false, "Failed to deserialize");
+    }
 }
