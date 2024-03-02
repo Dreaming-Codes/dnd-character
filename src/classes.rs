@@ -76,7 +76,8 @@ impl Default for ClassProperties {
             abilities: Default::default(),
             level: 1,
             subclass: None,
-            spell_casting: None
+            spell_casting: None,
+            fighting_style: None,
         }
     }
 }
