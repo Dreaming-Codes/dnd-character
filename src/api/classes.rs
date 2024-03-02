@@ -403,12 +403,8 @@ impl Class {
                 CustomLevelFeatureType::Sheet(feature) => {
                     match feature {
                         SheetLevelFeatureType::PrimalChampion => {
-                            todo!()
-/*                            if let Some(abilities) = self.1.get_abilities() {
-                                let mut abilities = abilities.borrow_mut();
-                                abilities.strength.score += 4;
-                                abilities.constitution.score += 4;
-                            }*/
+                            self.1.abilities_modifiers.strength.score += 4;
+                            self.1.abilities_modifiers.dexterity.score += 4;
                         }
                     }
                 }
