@@ -29,8 +29,8 @@ async fn get_level_features(){
 async fn primal_champion(){
     let mut dnd_character = Character::new("barbarian".to_string(), "a".to_string(), 19,"human".to_string(), "human".to_string(), "chaotic-neutral".to_string(), "bard".to_string(), "".to_string(), "".to_string());
 
-    dnd_character.classes.borrow_mut().0.iter_mut().next().unwrap().1.set_level(20).await.expect("Failed to set level");
+    dnd_character.classes.0.iter_mut().next().unwrap().1.set_level(20).await.expect("Failed to set level");
 
-    assert_eq!(dnd_character.abilities_score.borrow().strength.score, 4);
-    assert_eq!(dnd_character.abilities_score.borrow().constitution.score, 4);
+    assert_eq!(dnd_character.abilities_score.strength.score, 4);
+    assert_eq!(dnd_character.abilities_score.constitution.score, 4);
 }

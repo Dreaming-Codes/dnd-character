@@ -1,10 +1,6 @@
-use std::cell::RefCell;
 use std::collections::{HashMap};
 use std::hash::Hash;
-use std::rc::{Rc, Weak};
 use serde::{Deserialize, Serialize};
-use crate::abilities::Abilities;
-use crate::Character;
 
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -49,8 +45,6 @@ pub struct UsableSlots {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ClassProperties {
-    #[serde(skip)]
-    abilities: Weak<RefCell<Abilities>>,
     /// The level of the class
     pub level: u8,
     /// Index from https://www.dnd5eapi.co/api/subclasses/
@@ -60,20 +54,9 @@ pub struct ClassProperties {
     pub fighting_style: Option<String>,
 }
 
-impl ClassProperties {
-    pub fn set_abilities(&mut self, parent: Weak<RefCell<Abilities>>) {
-        self.abilities = parent;
-    }
-
-    pub fn get_abilities(&self) -> Option<Rc<RefCell<Abilities>>> {
-        self.abilities.upgrade()
-    }
-}
-
 impl Default for ClassProperties {
     fn default() -> Self {
         Self {
-            abilities: Default::default(),
             level: 1,
             subclass: None,
             spell_casting: None,

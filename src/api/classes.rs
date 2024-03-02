@@ -388,12 +388,12 @@ impl Class {
                 CustomLevelFeatureType::Sheet(feature) => {
                     match feature {
                         SheetLevelFeatureType::PrimalChampion => {
-                            println!("Primal Champion");
-                            if let Some(abilities) = self.1.get_abilities() {
+                            todo!()
+/*                            if let Some(abilities) = self.1.get_abilities() {
                                 let mut abilities = abilities.borrow_mut();
                                 abilities.strength.score += 4;
                                 abilities.constitution.score += 4;
-                            }
+                            }*/
                         }
                     }
                 }
@@ -511,33 +511,13 @@ impl Class {
         }
     }
 
-    fn increase_score(&mut self, option: ChoosableCustomLevelFeatureOption)
+    fn increase_score(&mut self, _option: ChoosableCustomLevelFeatureOption)
     {
-        if let Some(abilities) = self.1.get_abilities() {
-            match option {
-                ChoosableCustomLevelFeatureOption::StrengthPlusOne => abilities.borrow_mut().strength.score += 1,
-                ChoosableCustomLevelFeatureOption::DexterityPlusOne => abilities.borrow_mut().dexterity.score += 1,
-                ChoosableCustomLevelFeatureOption::ConstitutionPlusOne => abilities.borrow_mut().constitution.score += 1,
-                ChoosableCustomLevelFeatureOption::IntelligencePlusOne => abilities.borrow_mut().intelligence.score += 1,
-                ChoosableCustomLevelFeatureOption::WisdomPlusOne => abilities.borrow_mut().wisdom.score += 1,
-                ChoosableCustomLevelFeatureOption::CharismaPlusOne => abilities.borrow_mut().charisma.score += 1,
-                _ => {}
-            }
-        }
+        todo!()
     }
 
-    fn set_proficiency(&mut self, option: ChoosableCustomLevelFeatureOption)
+    fn set_proficiency(&mut self, _option: ChoosableCustomLevelFeatureOption)
     {
-        if let Some(abilities) = self.1.get_abilities() {
-            match option {
-                ChoosableCustomLevelFeatureOption::BardProficiencyStrength => abilities.borrow_mut().strength.proficiency = true,
-                ChoosableCustomLevelFeatureOption::BardProficiencyDexterity => abilities.borrow_mut().dexterity.proficiency = true,
-                ChoosableCustomLevelFeatureOption::BardProficiencyConstitution => abilities.borrow_mut().constitution.proficiency = true,
-                ChoosableCustomLevelFeatureOption::BardProficiencyIntelligence => abilities.borrow_mut().intelligence.proficiency = true,
-                ChoosableCustomLevelFeatureOption::BardProficiencyWisdom => abilities.borrow_mut().wisdom.proficiency = true,
-                ChoosableCustomLevelFeatureOption::BardProficiencyCharisma => abilities.borrow_mut().charisma.proficiency = true,
-                _ => {}
-            }
-        }
+        todo!()
     }
 }
