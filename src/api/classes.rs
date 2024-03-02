@@ -494,10 +494,10 @@ impl Class {
 
         match option {
             StrengthPlusOne | DexterityPlusOne | ConstitutionPlusOne | IntelligencePlusOne | WisdomPlusOne | CharismaPlusOne => {
-                self.increase_score(option);
+                todo!()
             }
             BardProficiencyStrength | BardProficiencyDexterity | BardProficiencyConstitution | BardProficiencyIntelligence | BardProficiencyWisdom | BardProficiencyCharisma => {
-                self.set_proficiency(option);
+                todo!()
             }
             PactOfTheChain | PactOfTheBlade | PactOfTheTome => {
                 println!("Pact of the Chain, Blade or Tome not yet implemented");
@@ -509,15 +509,5 @@ impl Class {
                 self.1.fighting_style.replace(option.as_index_str().to_string());
             }
         }
-    }
-
-    fn increase_score(&mut self, _option: ChoosableCustomLevelFeatureOption)
-    {
-        todo!()
-    }
-
-    fn set_proficiency(&mut self, _option: ChoosableCustomLevelFeatureOption)
-    {
-        todo!()
     }
 }
