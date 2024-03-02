@@ -494,10 +494,10 @@ impl Class {
 
         match option {
             StrengthPlusOne | DexterityPlusOne | ConstitutionPlusOne | IntelligencePlusOne | WisdomPlusOne | CharismaPlusOne => {
-                todo!()
+                println!("Ability score improvement not yet implemented");
             }
             BardProficiencyStrength | BardProficiencyDexterity | BardProficiencyConstitution | BardProficiencyIntelligence | BardProficiencyWisdom | BardProficiencyCharisma => {
-                todo!()
+                println!("Proficency setting not yet implemented");
             }
             PactOfTheChain | PactOfTheBlade | PactOfTheTome => {
                 println!("Pact of the Chain, Blade or Tome not yet implemented");
