@@ -24,3 +24,12 @@ async fn get_level_features(){
 
     assert!(!features.contains(&"druidic".to_string()));
 }
+
+#[tokio::test]
+async fn primal_champion(){
+    let mut dnd_character = Character::new("barbarian".to_string(), "a".to_string(), 19,"human".to_string(), "human".to_string(), "chaotic-neutral".to_string(), "bard".to_string(), "".to_string(), "".to_string());
+
+    dnd_character.classes.borrow_mut().0.iter_mut().next().unwrap().1.set_level(20).await.expect("Failed to set level");
+
+    dbg!(dnd_character.abilities_score);
+}

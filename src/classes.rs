@@ -1,7 +1,10 @@
+use std::cell::RefCell;
 use std::collections::{HashMap};
 use std::hash::Hash;
+use std::rc::{Rc, Weak};
 use serde::{Deserialize, Serialize};
 use crate::abilities::Abilities;
+use crate::Character;
 
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -46,27 +49,40 @@ pub struct UsableSlots {
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ClassProperties {
+    #[serde(skip)]
+    parent: Weak<RefCell<Character>>,
+    /// The level of the class
     pub level: u8,
     /// Index from https://www.dnd5eapi.co/api/subclasses/
     pub subclass: Option<String>,
     /// Indexes from https://www.dnd5eapi.co/api/spells/
-    pub spell_casting: Option<ClassSpellCasting>,
-    /// Abilities that the class boosted through features
-    pub abilities_addon: Abilities,
+    pub spell_casting: Option<ClassSpellCasting>
+}
+
+impl ClassProperties {
+    pub fn set_parent(&mut self, parent: Weak<RefCell<Character>>) {
+        println!("dio cane{:?}", parent.upgrade().unwrap().borrow());
+        self.parent = parent;
+    }
+    
+    pub fn get_parent(&self) -> Option<Rc<RefCell<Character>>> {
+        self.parent.upgrade()
+    }
 }
 
 impl Default for ClassProperties {
     fn default() -> Self {
         Self {
+            parent: Default::default(),
             level: 1,
             subclass: None,
-            spell_casting: None,
-            abilities_addon: Abilities::default(),
+            spell_casting: None
         }
     }
 }
 
 /// The key is the index of the class from https://www.dnd5eapi.co/api/classes
+#[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct Class(String, pub ClassProperties);
@@ -91,7 +107,7 @@ impl Class {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct Classes(pub HashMap<String, Class>);

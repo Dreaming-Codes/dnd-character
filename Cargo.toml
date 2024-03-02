@@ -16,7 +16,7 @@ cynic = { version = "3.4.3", features = ["http-reqwest", "serde_json"], optional
 lazy_static = "1.4.0"
 regex = "1.10.3"
 reqwest = { version = "0.11.24", optional = true }
-serde = { version = "1.0.197", optional = true }
+serde = { version = "1.0.197", features = ["rc"], optional = true }
 serde_json = { version = "1.0.114", optional = true }
 serde_variant = { version = "0.1.2", optional = true }
 thiserror = "1.0.57"

@@ -74,7 +74,7 @@ mod race_query {
 impl Character {
     pub async fn get_spellcasting_slots(&self) -> Result<HashMap<String, LevelSpellcasting>, ApiError> {
         let mut spellcasting_slots = HashMap::new();
-        for class in self.classes.0.iter() {
+        for class in self.classes.borrow_mut().0.iter() {
             let spellcasting_slots_class = class.1.get_spellcasting_slots().await?;
             if let Some(spellcasting_slots_class) = spellcasting_slots_class {
                 spellcasting_slots.insert(class.0.clone(), spellcasting_slots_class);
@@ -85,7 +85,7 @@ impl Character {
 
     pub async fn get_features(&self, passive: bool) -> Result<Vec<String>, ApiError> {
         let mut features = Vec::new();
-        for class in self.classes.0.iter() {
+        for class in self.classes.borrow_mut().0.iter() {
             let features_class = class.1.get_levels_features(None, passive).await?;
             features.extend(features_class);
         }

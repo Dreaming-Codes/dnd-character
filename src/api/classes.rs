@@ -340,8 +340,12 @@ impl Class {
                 CustomLevelFeatureType::Sheet(feature) => {
                     match feature {
                         SheetLevelFeatureType::PrimalChampion => {
-                            self.1.abilities_addon.strength.score += 4;
-                            self.1.abilities_addon.dexterity.score += 4;
+                            println!("Primal Champion");
+                            if let Some(character) = self.1.get_parent() {
+                                println!("Primal Champion 2");
+                                character.borrow_mut().abilities_score.strength.score += 4;
+                                character.borrow_mut().abilities_score.constitution.score += 4;
+                            }
                         }
                     }
                 }
