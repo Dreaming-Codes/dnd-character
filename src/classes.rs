@@ -50,7 +50,7 @@ pub struct UsableSlots {
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ClassProperties {
     #[serde(skip)]
-    parent: Weak<RefCell<Character>>,
+    parent: Weak<RefCell<Abilities>>,
     /// The level of the class
     pub level: u8,
     /// Index from https://www.dnd5eapi.co/api/subclasses/
@@ -60,12 +60,11 @@ pub struct ClassProperties {
 }
 
 impl ClassProperties {
-    pub fn set_parent(&mut self, parent: Weak<RefCell<Character>>) {
-        println!("dio cane{:?}", parent.upgrade().unwrap().borrow());
+    pub fn set_parent(&mut self, parent: Weak<RefCell<Abilities>>) {
         self.parent = parent;
     }
-    
-    pub fn get_parent(&self) -> Option<Rc<RefCell<Character>>> {
+
+    pub fn get_parent(&self) -> Option<Rc<RefCell<Abilities>>> {
         self.parent.upgrade()
     }
 }

@@ -31,5 +31,6 @@ async fn primal_champion(){
 
     dnd_character.classes.borrow_mut().0.iter_mut().next().unwrap().1.set_level(20).await.expect("Failed to set level");
 
-    dbg!(dnd_character.abilities_score);
+    assert_eq!(dnd_character.abilities_score.borrow().strength.score, 4);
+    assert_eq!(dnd_character.abilities_score.borrow().constitution.score, 4);
 }

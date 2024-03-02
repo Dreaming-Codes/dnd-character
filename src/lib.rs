@@ -50,7 +50,7 @@ pub struct Character {
 
     pub money: u32,
 
-    pub abilities_score: Abilities,
+    pub abilities_score: Rc<RefCell<Abilities>>,
 
     //Health related stuff
     pub hp: u16,
@@ -93,7 +93,7 @@ impl<'de> Deserialize<'de> for Character {
         let helper = CharacterHelper::deserialize(deserializer)?;
 
         // Create the Character struct and wrap the `classes` field in an Rc
-        let character = Rc::new(RefCell::new(Character {
+        let character = Character {
             classes: Rc::new(RefCell::new(helper.classes)),
             name: helper.name,
             age: helper.age,
@@ -105,20 +105,20 @@ impl<'de> Deserialize<'de> for Character {
             background_description: helper.background_description,
             experience_points: helper.experience_points,
             money: helper.money,
-            abilities_score: helper.abilities_score,
+            abilities_score: Rc::new(RefCell::new(helper.abilities_score)),
             hp: helper.hp,
             max_hp: helper.max_hp,
             inventory: helper.inventory,
             armor_class: helper.armor_class,
             other: helper.other,
-        }));
+        };
 
         // Iterate over the classes and set the `character` field
-        for class in character.borrow().classes.borrow_mut().0.iter_mut() {
-            class.1.1.set_parent(Rc::downgrade(&character));
+        for class in character.classes.borrow_mut().0.iter_mut() {
+            class.1.1.set_parent(Rc::downgrade(&character.abilities_score));
         }
 
-        Ok(Rc::try_unwrap(character).unwrap().into_inner())
+        Ok(character)
     }
 }
 
@@ -126,7 +126,7 @@ const LEVELS: [u32; 19] = [300, 900, 2_700, 6_500, 14_000, 23_000, 34_000, 48_00
 
 impl Character {
     pub fn new(main_class: String, name: String, age: u16, race_index: String, subrace_index: String, alignment_index: String, description: String, background_index: String, background_description: String) -> Self {
-        let character = Rc::new(RefCell::new(Self {
+        let character = Self {
             classes: Rc::new(RefCell::new(Classes::new(main_class))),
             name,
             age,
@@ -140,18 +140,18 @@ impl Character {
             money: 0,
             inventory: Vec::new(),
 
-            abilities_score: Abilities::default(),
+            abilities_score: Rc::new(RefCell::new(Abilities::default())),
             armor_class: 0,
             hp: 0,
             max_hp: 0,
             other: vec![],
-        }));
+        };
 
-        for class in character.borrow_mut().classes.borrow_mut().0.iter_mut() {
-            class.1.1.set_parent(Rc::downgrade(&character));
+        for class in character.classes.borrow_mut().0.iter_mut() {
+            class.1.1.set_parent(Rc::downgrade(&character.abilities_score));
         }
 
-        Rc::try_unwrap(character).unwrap().into_inner()
+        character
     }
 
     /// Return current level of the character

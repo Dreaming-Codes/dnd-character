@@ -341,10 +341,10 @@ impl Class {
                     match feature {
                         SheetLevelFeatureType::PrimalChampion => {
                             println!("Primal Champion");
-                            if let Some(character) = self.1.get_parent() {
-                                println!("Primal Champion 2");
-                                character.borrow_mut().abilities_score.strength.score += 4;
-                                character.borrow_mut().abilities_score.constitution.score += 4;
+                            if let Some(abilities) = self.1.get_parent() {
+                                let mut abilities = abilities.borrow_mut();
+                                abilities.strength.score += 4;
+                                abilities.constitution.score += 4;
                             }
                         }
                     }
