@@ -26,6 +26,9 @@ pub struct Spell {
 pub struct StringFilter(pub String);
 
 impl Class {
+    /// Returns the spells that the class can cast
+    /// If it's a knowladge based class it will return the spells that the character can know
+    /// If it's a prepared based class it will return the spells that the character can prepare
     pub async fn get_spells(&self) -> Result<Vec<String>, ApiError> {
         let op = SpellsQuery::build(SpellsQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
