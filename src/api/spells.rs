@@ -17,6 +17,7 @@ pub struct SpellsQuery {
 }
 
 #[derive(cynic::QueryFragment, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Spell {
     pub index: String,
     pub level: i32,
@@ -29,7 +30,7 @@ impl Class {
     /// Returns the spells that the class can cast
     /// If it's a knowladge based class it will return the spells that the character can know
     /// If it's a prepared based class it will return the spells that the character can prepare
-    pub async fn get_spells(&self) -> Result<Vec<String>, ApiError> {
+    pub async fn get_spells(&self) -> Result<Vec<Spell>, ApiError> {
         let op = SpellsQuery::build(SpellsQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
         });
@@ -40,6 +41,6 @@ impl Class {
             .data.ok_or(ApiError::Schema)?
             .spells.ok_or(ApiError::Schema)?;
 
-        Ok(spells.iter().map(|spell| spell.index.clone()).collect())
+        Ok(spells)
     }
 }
