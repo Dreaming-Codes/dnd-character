@@ -29,7 +29,7 @@ async fn get_level_features(){
 #[tokio::test]
 async fn choosable_custom_level_feature_option_serialization() {
     let index = ChoosableCustomLevelFeatureOption::PactOfTheTome.as_index_str();
-    
+
     assert_eq!(index, "pact-of-the-tome");
 
     if let Some(ChoosableCustomLevelFeatureOption::PactOfTheTome) = ChoosableCustomLevelFeatureOption::from_index_str(index) {
@@ -37,4 +37,13 @@ async fn choosable_custom_level_feature_option_serialization() {
     } else {
         assert!(false, "Failed to deserialize");
     }
+}
+
+#[tokio::test]
+async fn wizard_spells() {
+    let dnd_character = Character::new("wizard".to_string(), "a".to_string(), 16,"human".to_string(), "human".to_string(), "chaotic-neutral".to_string(), "bard".to_string(), "".to_string(), "".to_string());
+
+    let spells = dnd_character.classes.0.iter().next().unwrap().1.get_spells().await.expect("Error in API Request");
+
+    assert_eq!(spells.len(), 100)
 }
