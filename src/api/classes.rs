@@ -4,10 +4,11 @@ use cynic::http::ReqwestExt;
 use reqwest::Client;
 use crate::api::shared::ApiError;
 use cynic::{impl_scalar, QueryBuilder};
+use futures::StreamExt;
 use lazy_static::lazy_static;
 use serde_json::json;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
-use crate::classes::Class;
+use crate::classes::{Class, Classes, UsableSlots};
 
 #[derive(cynic::QueryVariables, Debug)]
 struct SpellcastingAbilityQueryVariables {
@@ -55,7 +56,7 @@ pub struct Level {
     pub spellcasting: Option<LevelSpellcasting>,
 }
 
-#[derive(cynic::QueryFragment, Debug)]
+#[derive(cynic::QueryFragment, Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct LevelSpellcasting {
     #[cynic(rename = "cantrips_known")]
@@ -78,6 +79,22 @@ pub struct LevelSpellcasting {
     pub spell_slots_level_8: Option<i32>,
     #[cynic(rename = "spell_slots_level_9")]
     pub spell_slots_level_9: Option<i32>,
+}
+
+impl Into<UsableSlots> for LevelSpellcasting {
+    fn into(self) -> UsableSlots {
+        UsableSlots {
+            level_1: self.spell_slots_level_1.unwrap_or(0) as u8,
+            level_2: self.spell_slots_level_2.unwrap_or(0) as u8,
+            level_3: self.spell_slots_level_3.unwrap_or(0) as u8,
+            level_4: self.spell_slots_level_4.unwrap_or(0) as u8,
+            level_5: self.spell_slots_level_5.unwrap_or(0) as u8,
+            level_6: self.spell_slots_level_6.unwrap_or(0) as u8,
+            level_7: self.spell_slots_level_7.unwrap_or(0) as u8,
+            level_8: self.spell_slots_level_8.unwrap_or(0) as u8,
+            level_9: self.spell_slots_level_9.unwrap_or(0) as u8,
+        }
+    }
 }
 
 #[derive(cynic::QueryVariables, Debug)]
@@ -351,7 +368,35 @@ impl CustomLevelFeatureType {
 }
 
 
+impl Classes {
+    pub(super) async fn new_day(&mut self) {
+        futures::stream::iter(self.0.values_mut())
+            .for_each_concurrent(None, |class| class.new_day())
+            .await;
+    }
+}
+
 impl Class {
+    pub(super) async fn new_day(&mut self) {
+        use crate::classes::ClassSpellCasting::*;
+
+        let index = self.index().to_string();
+
+        if let Some(spell_casting) = &mut self.1.spell_casting {
+            match spell_casting {
+                KnowledgePrepared {pending_preparation, spells_prepared_index, .. } | AlreadyKnowPrepared { pending_preparation, spells_prepared_index, .. } => {
+                    *pending_preparation = true;
+                    spells_prepared_index.clear();
+                }
+                KnowledgeAlreadyPrepared {usable_slots, ..} => {
+                    if let Ok(Some(spellcasting_slots)) = get_spellcasting_slots(index.as_str(), self.1.level).await {
+                        *usable_slots = spellcasting_slots.into();
+                    }
+                }
+            }
+        }
+    }
+
     pub async fn get_spellcasting_ability_index(&self) -> Result<String, ApiError> {
         let op = SpellcastingAbilityQuery::build(SpellcastingAbilityQueryVariables {
             index: Some(self.index().to_string())
@@ -369,18 +414,7 @@ impl Class {
     }
 
     pub async fn get_spellcasting_slots(&self) -> Result<Option<LevelSpellcasting>, ApiError> {
-        let op = SpellcastingQuery::build(SpellcastingQueryVariables {
-            index: Some(format!("{}-{}", self.index(), self.1.level))
-        });
-
-        let spellcasting_slots = Client::new()
-            .post("https://www.dnd5eapi.co/graphql")
-            .run_graphql(op).await?
-            .data.ok_or(ApiError::Schema)?
-            .level.ok_or(ApiError::Schema)?
-            .spellcasting;
-
-        Ok(spellcasting_slots)
+        get_spellcasting_slots(self.index(), self.1.level).await
     }
 
     pub async fn set_level(&mut self, new_level: u8) -> Result<Vec<ChoosableCustomLevelFeature>, ApiError> {
@@ -575,4 +609,19 @@ impl Class {
         }
 
     }
+}
+
+pub async fn get_spellcasting_slots(index: &str, level: u8) -> Result<Option<LevelSpellcasting>, ApiError> {
+    let op = SpellcastingQuery::build(SpellcastingQueryVariables {
+        index: Some(format!("{}-{}", index, level))
+    });
+
+    let spellcasting_slots = Client::new()
+        .post("https://www.dnd5eapi.co/graphql")
+        .run_graphql(op).await?
+        .data.ok_or(ApiError::Schema)?
+        .level.ok_or(ApiError::Schema)?
+        .spellcasting;
+
+    Ok(spellcasting_slots)
 }

@@ -109,4 +109,9 @@ impl Character {
 
         Ok(character.to_string())
     }
+
+    /// Call this method every day to reset daily vars
+    pub async fn new_day(&mut self) {
+        self.classes.new_day().await;
+    }
 }
