@@ -8,6 +8,7 @@ async fn get_level_features(){
     let mut dnd_character = Character::new("cleric".to_string(), "a".to_string(), 16,"human".to_string(), "human".to_string(), "chaotic-neutral".to_string(), "bard".to_string(), "".to_string(), "".to_string());
 
     dnd_character.add_experience(90000);
+    let _ = dnd_character.classes.0.iter_mut().next().unwrap().1.set_level(20).await;
 
     let features = dnd_character.get_features(true).await.expect("Error in API Request");
 
@@ -16,6 +17,8 @@ async fn get_level_features(){
     let mut dnd_character = Character::new("bard".to_string(), "a".to_string(), 16,"human".to_string(), "human".to_string(), "chaotic-neutral".to_string(), "bard".to_string(), "".to_string(), "".to_string());
 
     dnd_character.add_experience(90000);
+
+    let _ = dnd_character.classes.0.iter_mut().next().unwrap().1.set_level(20).await;
 
     let features = dnd_character.get_features(true).await.expect("Error in API Request");
 

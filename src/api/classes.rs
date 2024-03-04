@@ -3,7 +3,7 @@ use super::shared::schema;
 use cynic::http::ReqwestExt;
 use reqwest::Client;
 use crate::api::shared::ApiError;
-use cynic::QueryBuilder;
+use cynic::{impl_scalar, QueryBuilder};
 use lazy_static::lazy_static;
 use serde_json::json;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
@@ -83,13 +83,21 @@ pub struct LevelSpellcasting {
 #[derive(cynic::QueryVariables, Debug)]
 pub struct LevelFeaturesQueryVariables {
     pub class: Option<StringFilter>,
-    pub level: Option<IntFilter>,
+    pub level: Option<LevelFilter>
 }
+
+#[derive(serde::Serialize, Debug)]
+pub struct LevelFilter {
+    pub gte: Option<u8>,
+    pub lte: Option<u8>
+}
+
+impl_scalar!(LevelFilter, schema::IntFilter);
 
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "Query", variables = "LevelFeaturesQueryVariables")]
 pub struct LevelFeaturesQuery {
-    #[arguments(level: $ level, class: $ class)]
+    #[arguments(class: $ class, level: $level )]
     pub features: Option<Vec<Feature>>,
 }
 
@@ -97,9 +105,6 @@ pub struct LevelFeaturesQuery {
 pub struct Feature {
     pub index: String,
 }
-
-#[derive(cynic::Scalar, Debug, Clone)]
-pub struct IntFilter(pub String);
 
 #[derive(cynic::Scalar, Debug, Clone)]
 pub struct StringFilter(pub String);
@@ -381,7 +386,7 @@ impl Class {
     pub async fn set_level(&mut self, new_level: u8) -> Result<Vec<ChoosableCustomLevelFeature>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
-            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", self.1.level, new_level))),
+            level: Some(LevelFilter{gte: Some(self.1.level), lte: Some(new_level)}),
         });
 
         let features = Client::new()
@@ -420,7 +425,7 @@ impl Class {
     pub async fn get_levels_features(&self, from_level: Option<u8>, passive: bool) -> Result<Vec<String>, ApiError> {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
-            level: Some(IntFilter(format!("{{ gte: {}, lte: {} }}", from_level.unwrap_or(0), self.1.level))),
+            level: Some(LevelFilter{gte: Some(from_level.unwrap_or(0)), lte: Some(self.1.level)}),
         });
 
         let features = Client::new()
@@ -568,6 +573,6 @@ impl Class {
             }
             _ => {}
         }
-        
+
     }
 }
