@@ -110,7 +110,25 @@ pub struct Classes(pub HashMap<String, Class>);
 impl Classes {
     pub fn new(class_index: String) -> Self {
         let mut classes = Self::default();
-        classes.0.insert(class_index.clone(), Class(class_index, ClassProperties::default()));
+
+        let spell_casting = match class_index.as_str() {
+            "cleric" | "paladin" | "druid" => {
+                Some(ClassSpellCasting::AlreadyKnowPrepared {
+                    spells_prepared_index: Vec::new(),
+                    pending_preparation: true,
+                })
+            }
+            _ => {
+                None
+            }
+        };
+
+        let class_properties = ClassProperties {
+            spell_casting,
+            ..ClassProperties::default()
+        };
+
+        classes.0.insert(class_index.clone(), Class(class_index, class_properties));
         classes
     }
 }
