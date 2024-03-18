@@ -11,9 +11,9 @@ pub enum ClassSpellCasting {
     // Ask the user to prepare spells at the start of the day
     KnowledgePrepared {
         /// Indexes from https://www.dnd5eapi.co/api/spells/
-        spells_index: Vec<String>,
+        spells_index: Vec<Vec<String>>,
         /// Indexes from https://www.dnd5eapi.co/api/spells/
-        spells_prepared_index: Vec<String>,
+        spells_prepared_index: Vec<Vec<String>>,
         /// If the user has already prepared spells for the day
         pending_preparation: bool,
     },
@@ -21,7 +21,7 @@ pub enum ClassSpellCasting {
     // Ask the user to prepare spells at the start of the day
     AlreadyKnowPrepared {
         /// Indexes from https://www.dnd5eapi.co/api/spells/
-        spells_prepared_index: Vec<String>,
+        spells_prepared_index: Vec<Vec<String>>,
         /// If the user has already prepared spells for the day
         pending_preparation: bool,
     },
@@ -29,7 +29,7 @@ pub enum ClassSpellCasting {
     // No need to ask anything, at the start of the day
     KnowledgeAlreadyPrepared {
         /// Indexes from https://www.dnd5eapi.co/api/spells/
-        spells_index: Vec<String>,
+        spells_index: Vec<Vec<String>>,
         usable_slots: UsableSlots,
     },
 }

@@ -1,7 +1,7 @@
 use cynic::http::ReqwestExt;
 use cynic::QueryBuilder;
 use reqwest::Client;
-use crate::classes::{Class};
+use crate::classes::{Class, ClassSpellCasting};
 use super::shared::{ApiError, schema};
 
 #[derive(cynic::QueryVariables, Debug)]
@@ -42,5 +42,26 @@ impl Class {
             .spells.ok_or(ApiError::Schema)?;
 
         Ok(spells)
+    }
+
+    pub async fn get_ready_spells(&self) -> Result<Vec<Vec<String>>, ApiError> {
+        match &self.1.spell_casting {
+            None => {
+                Ok(Vec::new())
+            }
+            Some(spell_casting) => {
+                match spell_casting {
+                    ClassSpellCasting::KnowledgePrepared { .. } => {
+                        Ok(Vec::new())
+                    }
+                    ClassSpellCasting::AlreadyKnowPrepared { spells_prepared_index, .. } => {
+                        Ok(spells_prepared_index.clone())
+                    }
+                    ClassSpellCasting::KnowledgeAlreadyPrepared { .. } => {
+                        Ok(Vec::new())
+                    }
+                }
+            }
+        }
     }
 }
