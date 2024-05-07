@@ -99,6 +99,25 @@ impl Class {
     pub fn index(&self) -> &str {
         &self.0
     }
+    
+    pub fn hit_dice(&self) -> u8 {
+        match self.index() {
+            "barbarian" => 12,
+            "bard" => 8,
+            "cleric" => 8,
+            "druid" => 8,
+            "fighter" => 10,
+            "monk" => 8,
+            "paladin" => 10,
+            "ranger" => 10,
+            "rogue" => 8,
+            "sorcerer" => 6,
+            "warlock" => 8,
+            "wizard" => 6,
+            // For unknown classes we will use the minimum hit dice
+            _ => 6,
+        }
+    }
 }
 
 #[derive(Default, Debug)]
