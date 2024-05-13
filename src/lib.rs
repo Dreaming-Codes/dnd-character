@@ -55,8 +55,6 @@ pub struct Character {
 
     pub inventory: Vec<String>,
 
-    pub armor_class: u8,
-
     pub other: Vec<String>,
 }
 
@@ -79,7 +77,6 @@ impl Character {
             inventory: Vec::new(),
 
             abilities_score: Abilities::default(),
-            armor_class: 0,
             hp: 0,
             max_hp: 0,
             other: vec![],
