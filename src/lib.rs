@@ -82,6 +82,17 @@ impl Character {
             other: vec![],
         }
     }
+    
+    pub fn class_armor(&self) -> i8 {
+        match self.classes.0.iter().next().unwrap().0.as_str() {
+            "monk" => {
+                10 + self.abilities_score.dexterity.modifier(0) + self.abilities_score.wisdom.modifier(0)
+            }
+            _ => {
+                10 + self.abilities_score.dexterity.modifier(0)
+            }
+        }
+    }
 
     /// Return current level of the character
     pub fn level(&self) -> u8 {
