@@ -325,7 +325,7 @@ impl CustomLevelFeatureType {
             "pact-boon" => Some(Choosable(WarlockPact)),
             "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
             "ranger-fighting-style" => Some(Choosable(RangerFightingStyle)),
-            "fighter-fighting-style" => Some(Choosable(RangerFightingStyle)),
+            "fighter-fighting-style" => Some(Choosable(FighterFightingStyle)),
             "beast-spells" => Some(Ignored),
             "bonus-proficiencies" => Some(Choosable(BonusBardProficiency)),
             "bonus-proficiency" => Some(Passive),
