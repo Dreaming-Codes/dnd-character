@@ -49,7 +49,7 @@ pub struct UsableSlots {
     pub level_9: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct ClassProperties {
@@ -61,18 +61,6 @@ pub struct ClassProperties {
     pub spell_casting: Option<ClassSpellCasting>,
     pub fighting_style: Option<String>,
     pub abilities_modifiers: Abilities,
-}
-
-impl Default for ClassProperties {
-    fn default() -> Self {
-        Self {
-            level: 1,
-            subclass: None,
-            spell_casting: None,
-            fighting_style: None,
-            abilities_modifiers: Abilities::default(),
-        }
-    }
 }
 
 /// The key is the index of the class from https://www.dnd5eapi.co/api/classes
@@ -99,7 +87,7 @@ impl Class {
     pub fn index(&self) -> &str {
         &self.0
     }
-    
+
     pub fn hit_dice(&self) -> u8 {
         match self.index() {
             "barbarian" => 12,
