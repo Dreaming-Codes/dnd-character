@@ -331,7 +331,8 @@ impl CustomLevelFeatureType {
             "bonus-proficiency" => Some(Passive),
             "additional-magical-secrets" | "bonus-cantrip" => Some(Ignored),
             "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => Some(Ignored),
-            "magical-secrets-1" | "magical-secrets-2" | "magical-secrets-3" => Some(Choosable(ChooseTwoSpellForAnyClass)),
+            //"magical-secrets-1" | "magical-secrets-2" | "magical-secrets-3" => Some(Choosable(ChooseTwoSpellForAnyClass)), TODO: Implement this
+            "magical-secrets-1" | "magical-secrets-2" | "magical-secrets-3" => Some(Ignored),
             "mystic-arcanum-6th-level" | "mystic-arcanum-7th-level" | "mystic-arcanum-8th-level" | "mystic-arcanum-9th-level" => Some(Choosable(ChooseOne6thLevelSpellFromWarlockList)),
             "paladin-fighting-style" => Some(Choosable(PaladinFightingStyle)),
             "primal-champion" => Some(Sheet(PrimalChampion)),
@@ -361,7 +362,8 @@ impl CustomLevelFeatureType {
             | "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed" | "wild-shape-cr-1-or-below" | "ki" | "monk-unarmored-defense"
             | "perfect-self" | "slippery-mind" | "mindless-rage" | "barbarian-unarmored-defense"
             | "divine-intervention-improvement" | "persistent-rage" | "evocation-savant" | "potent-cantrip" | "second-story-work" => Some(Passive),
-            x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
+            //x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
+            x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Ignored), // TODO: Implement this
             x if x.starts_with("spellcasting-") => Some(Ignored),
             // Ignore all eldritch invocations since they are unlocked using invocation known table
             x if x.starts_with("eldritch-invocation-") => Some(Ignored),
