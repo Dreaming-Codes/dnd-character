@@ -136,6 +136,8 @@ pub enum ChoosableCustomLevelFeature {
     WarlockPact,
     /// https://www.dnd5eapi.co/api/features/additional-fighting-style
     AdditionalFighterFightingStyle,
+    /// https://www.dnd5eapi.co/api/features/fighter-fighting-style
+    FighterFightingStyle,
     /// https://www.dnd5eapi.co/api/features/ranger-fighting-style
     RangerFightingStyle,
     /// https://www.dnd5eapi.co/api/features/bonus-proficiencies
@@ -243,7 +245,7 @@ impl ChoosableCustomLevelFeature {
                     vec![PactOfTheChain, PactOfTheBlade, PactOfTheTome]
                 ]
             }
-            ChoosableCustomLevelFeature::AdditionalFighterFightingStyle => {
+            ChoosableCustomLevelFeature::AdditionalFighterFightingStyle | ChoosableCustomLevelFeature::FighterFightingStyle => {
                 vec![
                     vec![
                         FighterFightingStyleArchery,
@@ -322,6 +324,8 @@ impl CustomLevelFeatureType {
             "bard-college" | "divine-domain" | "monastic-tradition" | "sacred-oath" | "ranger-archetype" | "sorcerous-origin" | "druid-circle" | "primal-path" | "martial-archetype" | "otherworldly-patron" => Some(Ignored),
             "pact-boon" => Some(Choosable(WarlockPact)),
             "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
+            "ranger-fighting-style" => Some(Choosable(RangerFightingStyle)),
+            "fighter-fighting-style" => Some(Choosable(RangerFightingStyle)),
             "beast-spells" => Some(Ignored),
             "bonus-proficiencies" => Some(Choosable(BonusBardProficiency)),
             "bonus-proficiency" => Some(Passive),
@@ -343,7 +347,7 @@ impl CustomLevelFeatureType {
             | "dragon-ancestor-gold---fire-damage" | "dragon-ancestor-green---poison-damage" | "dragon-ancestor-red---fire-damage"
             | "dragon-ancestor-silver---cold-damage" | "dragon-ancestor-white---cold-damage" | "druid-lands-stride" | "druid-timeless-body"
             | "druidic" | "elusive" | "empowered-evocation" | "elemental-affinity" | "fast-movement" | "favored-enemy-1-type" | "favored-enemy-2-types"
-            | "favored-enemy-3-enemies" | "feral-instinct" | "feral-senses" | "fighter-fighting-style" | "fighter-fighting-style-archery"
+            | "favored-enemy-3-enemies" | "feral-instinct" | "feral-senses" | "fighter-fighting-style-archery" | "fighter-fighting-style-protection"
             | "fighter-fighting-style-defense" | "fighter-fighting-style-dueling" | "fighter-fighting-style-great-weapon-fighting"
             | "fighter-fighting-style-two-weapon-fighting" | "fighting-style-defense" | "fighting-style-dueling"
             | "fighting-style-great-weapon-fighting" | "foe-slayer" | "hurl-through-hell" | "improved-critical" | "improved-divine-smite"
@@ -556,7 +560,11 @@ impl Class {
             | FighterFightingStyleProtection | FighterFightingStyleTwoWeaponFighting | RangerFightingStyleArchery | RangerFightingStyleDefense
             | RangerFightingStyleDueling | RangerFightingStyleTwoWeaponFighting | FightingStyleDefense | FightingStyleDueling
             | FightingStyleGreatWeaponFighting | FightingStyleProtection => {
-                self.1.fighting_style.replace(option.as_index_str().to_string());
+                if self.1.fighting_style.is_none() {
+                    self.1.fighting_style.replace(option.as_index_str().to_string());
+                } else {
+                    self.1.additional_fighting_style.replace(option.as_index_str().to_string());
+                }
             }
         }
     }

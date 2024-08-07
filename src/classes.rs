@@ -60,6 +60,7 @@ pub struct ClassProperties {
     /// Indexes from https://www.dnd5eapi.co/api/spells/
     pub spell_casting: Option<ClassSpellCasting>,
     pub fighting_style: Option<String>,
+    pub additional_fighting_style: Option<String>,
     pub abilities_modifiers: Abilities,
 }
 
