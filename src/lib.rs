@@ -82,7 +82,7 @@ impl Character {
             other: vec![],
         }
     }
-    
+
     pub fn class_armor(&self) -> i8 {
         match self.classes.0.iter().next().unwrap().0.as_str() {
             "monk" => {
@@ -112,8 +112,14 @@ impl Character {
         //Save the level before adding experience
         let previous_level = self.level();
 
+        // Limit the experience gotten to the experience needed to reach the next level
+        let experience_to_add = LEVELS.get(self.level() as usize - 1)
+            .map_or(experience, |&next_level_points| {
+                (next_level_points - self.experience_points).min(experience)
+            });
+
         //Add the experience
-        self.experience_points += experience;
+        self.experience_points += experience_to_add;
 
         //Save the level after adding experience
         let current_level = self.level();
