@@ -52,6 +52,7 @@ pub struct UsableSlots {
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct ClassProperties {
     /// The level of the class
     pub level: u8,
@@ -68,6 +69,7 @@ pub struct ClassProperties {
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Class(String, pub ClassProperties);
 
 impl Hash for Class {
@@ -112,6 +114,7 @@ impl Class {
 #[derive(Default, Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Classes(pub HashMap<String, Class>);
 
 

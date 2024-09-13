@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct AbilityScore {
     pub score: u8,
     pub proficiency: bool,
@@ -27,6 +28,7 @@ pub const ABILITY_NAMES: [&str; 6] = ["strength", "dexterity", "constitution", "
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Abilities {
     pub strength: AbilityScore,
     pub dexterity: AbilityScore,

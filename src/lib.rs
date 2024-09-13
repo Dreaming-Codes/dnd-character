@@ -25,6 +25,7 @@ impl std::error::Error for UnexpectedAbility {}
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Character {
     /// Indexes from https://www.dnd5eapi.co/api/classes/
     pub classes: Classes,
@@ -56,6 +57,33 @@ pub struct Character {
     pub inventory: Vec<String>,
 
     pub other: Vec<String>,
+}
+
+#[cfg(feature = "utoipa")]
+pub mod utoipa_addon {
+    use utoipa::{Modify, ToSchema};
+    use utoipa::openapi::OpenApi;
+
+    pub struct ApiDocDndCharacterAddon;
+
+    impl Modify for ApiDocDndCharacterAddon {
+        fn modify(&self, openapi: &mut OpenApi) {
+            if let Some(components) = openapi.components.as_mut() {
+                let schemas = [
+                    super::Character::schema(),
+                    super::Classes::schema(),
+                    super::classes::Class::schema(),
+                    super::classes::ClassProperties::schema(),
+                    super::Abilities::schema(),
+                    super::abilities::AbilityScore::schema(),
+                ];
+
+                for (name, schema) in schemas {
+                    components.schemas.insert(name.to_string(), schema);
+                }
+            }
+        }
+    }
 }
 
 const LEVELS: [u32; 19] = [300, 900, 2_700, 6_500, 14_000, 23_000, 34_000, 48_000, 64_000, 85_000, 100_000, 120_000, 140_000, 165_000, 195_000, 225_000, 265_000, 305_000, 355_000];
