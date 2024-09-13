@@ -6,6 +6,7 @@ use crate::abilities::Abilities;
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum ClassSpellCasting {
     // Wizard
     // Ask the user to prepare spells at the start of the day
@@ -37,6 +38,7 @@ pub enum ClassSpellCasting {
 #[derive(Debug, Default)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct UsableSlots {
     pub level_1: u8,
     pub level_2: u8,

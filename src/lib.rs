@@ -74,6 +74,8 @@ pub mod utoipa_addon {
                     super::Classes::schema(),
                     super::classes::Class::schema(),
                     super::classes::ClassProperties::schema(),
+                    super::classes::ClassSpellCasting::schema(),
+                    super::classes::UsableSlots::schema(),
                     super::Abilities::schema(),
                     super::abilities::AbilityScore::schema(),
                 ];
