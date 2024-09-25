@@ -1,6 +1,7 @@
 use cynic::http::ReqwestExt;
 use cynic::QueryBuilder;
 use reqwest::Client;
+use utoipa::ToSchema;
 use crate::classes::{Class, ClassSpellCasting};
 use super::shared::{ApiError, schema};
 
@@ -16,7 +17,7 @@ pub struct SpellsQuery {
     pub spells: Option<Vec<Spell>>,
 }
 
-#[derive(cynic::QueryFragment, Debug)]
+#[derive(cynic::QueryFragment, Debug, ToSchema)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
 pub struct Spell {
     pub index: String,
