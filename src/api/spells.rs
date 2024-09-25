@@ -17,8 +17,9 @@ pub struct SpellsQuery {
     pub spells: Option<Vec<Spell>>,
 }
 
-#[derive(cynic::QueryFragment, Debug, ToSchema)]
+#[derive(cynic::QueryFragment, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Spell {
     pub index: String,
     pub level: i32,
