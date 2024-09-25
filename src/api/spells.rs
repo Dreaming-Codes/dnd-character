@@ -1,7 +1,6 @@
 use cynic::http::ReqwestExt;
 use cynic::QueryBuilder;
 use reqwest::Client;
-use utoipa::ToSchema;
 use crate::classes::{Class, ClassSpellCasting};
 use super::shared::{ApiError, schema};
 
