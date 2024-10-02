@@ -175,4 +175,12 @@ impl Character {
 
         Ok(())
     }
+
+    pub fn add_item(&mut self, item: &str, amount: u16) {
+        if let Some(quantity) = self.inventory.get_mut(item) {
+            *quantity += amount;
+        } else {
+            self.inventory.insert(item.to_string(), amount);
+        }
+    }
 }
