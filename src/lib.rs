@@ -4,6 +4,7 @@ pub mod api;
 pub mod abilities;
 pub mod classes;
 
+use std::collections::HashMap;
 use std::fmt;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -54,7 +55,7 @@ pub struct Character {
     pub hp: u16,
     pub max_hp: u16,
 
-    pub inventory: Vec<String>,
+    pub inventory: HashMap<String, u16>,
 
     pub other: Vec<String>,
 }
@@ -104,7 +105,7 @@ impl Character {
             background_description,
             experience_points: 0,
             money: 0,
-            inventory: Vec::new(),
+            inventory: HashMap::new(),
 
             abilities_score: Abilities::default(),
             hp: 0,
