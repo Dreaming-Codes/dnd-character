@@ -160,12 +160,12 @@ impl Character {
         current_level - previous_level
     }
 
-    pub fn remove_item(&mut self, item: String, amount: Option<u16>) -> anyhow::Result<(), anyhow::Error> {
-        if let Some(quantity) = self.inventory.get_mut(&item) {
+    pub fn remove_item(&mut self, item: &str, amount: Option<u16>) -> anyhow::Result<(), anyhow::Error> {
+        if let Some(quantity) = self.inventory.get_mut(item) {
             let quantity_to_remove = amount.unwrap_or(*quantity);
 
             if *quantity <= quantity_to_remove {
-                self.inventory.remove(&item);
+                self.inventory.remove(item);
             } else {
                 *quantity -= quantity_to_remove;
             }
