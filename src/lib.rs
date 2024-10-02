@@ -4,6 +4,7 @@ pub mod api;
 pub mod abilities;
 pub mod classes;
 
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
 use anyhow::{anyhow, bail};
@@ -181,6 +182,21 @@ impl Character {
             *quantity += amount;
         } else {
             self.inventory.insert(item.to_string(), amount);
+        }
+    }
+
+    pub fn alter_item_quantity(&mut self, item: &str, amount: i32) -> anyhow::Result<()> {
+        match amount.cmp(&0) {
+            Ordering::Greater => {
+                self.add_item(item, amount as u16);
+                Ok(())
+            }
+            Ordering::Less => {
+                self.remove_item(item, Some(amount.unsigned_abs() as u16))
+            }
+            Ordering::Equal => {
+                bail!("Cannot alter quantity to 0")
+            }
         }
     }
 }
