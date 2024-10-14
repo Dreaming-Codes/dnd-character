@@ -326,7 +326,6 @@ impl CustomLevelFeatureType {
             "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
             "ranger-fighting-style" => Some(Choosable(RangerFightingStyle)),
             "fighter-fighting-style" => Some(Choosable(FighterFightingStyle)),
-            "beast-spells" => Some(Ignored),
             "bonus-proficiencies" => Some(Choosable(BonusBardProficiency)),
             "bonus-proficiency" => Some(Passive),
             "additional-magical-secrets" | "bonus-cantrip" => Some(Ignored),
@@ -361,7 +360,7 @@ impl CustomLevelFeatureType {
             | "superior-hunters-defense" | "superior-hunters-defense-evasion" | "wild-shape-cr-1-2-or-below-no-flying-speed"
             | "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed" | "wild-shape-cr-1-or-below" | "ki" | "monk-unarmored-defense"
             | "perfect-self" | "slippery-mind" | "mindless-rage" | "barbarian-unarmored-defense"
-            | "divine-intervention-improvement" | "persistent-rage" | "evocation-savant" | "potent-cantrip" | "second-story-work" => Some(Passive),
+            | "divine-intervention-improvement" | "persistent-rage" | "evocation-savant" | "potent-cantrip" | "second-story-work" | "beast-spells" => Some(Passive),
             //x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
             x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Ignored), // TODO: Implement this
             x if x.starts_with("spellcasting-") => Some(Ignored),
