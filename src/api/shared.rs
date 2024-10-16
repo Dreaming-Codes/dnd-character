@@ -31,7 +31,7 @@ mod race_query {
     use reqwest::Client;
     use crate::api::shared::ApiError;
     use cynic::QueryBuilder;
-    use crate::Character;
+    use crate::{Character, GRAPHQL_API_URL};
     use super::schema;
 
     #[derive(cynic::QueryVariables, Debug)]
@@ -59,7 +59,7 @@ mod race_query {
             });
 
             let speed = Client::new()
-                .post("https://www.dnd5eapi.co/graphql")
+                .post(GRAPHQL_API_URL)
                 .run_graphql(op).await?
                 .data.ok_or(ApiError::Schema)?
                 .race.ok_or(ApiError::Schema)?

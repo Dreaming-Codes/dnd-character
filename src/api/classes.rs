@@ -1,3 +1,4 @@
+use crate::GRAPHQL_API_URL;
 use std::collections::HashMap;
 use super::shared::schema;
 use cynic::http::ReqwestExt;
@@ -408,7 +409,7 @@ impl Class {
         });
 
         let ability_index = Client::new()
-            .post("https://www.dnd5eapi.co/graphql")
+            .post(GRAPHQL_API_URL)
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .class.ok_or(ApiError::Schema)?
@@ -429,7 +430,7 @@ impl Class {
         });
 
         let features = Client::new()
-            .post("https://www.dnd5eapi.co/graphql")
+            .post(GRAPHQL_API_URL)
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .features.ok_or(ApiError::Schema)?;
@@ -468,7 +469,7 @@ impl Class {
         });
 
         let features = Client::new()
-            .post("https://www.dnd5eapi.co/graphql")
+            .post(GRAPHQL_API_URL)
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .features.ok_or(ApiError::Schema)?;
@@ -626,7 +627,7 @@ pub async fn get_spellcasting_slots(index: &str, level: u8) -> Result<Option<Lev
     });
 
     let spellcasting_slots = Client::new()
-        .post("https://www.dnd5eapi.co/graphql")
+        .post(GRAPHQL_API_URL)
         .run_graphql(op).await?
         .data.ok_or(ApiError::Schema)?
         .level.ok_or(ApiError::Schema)?

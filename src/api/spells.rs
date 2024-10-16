@@ -2,6 +2,7 @@ use cynic::http::ReqwestExt;
 use cynic::QueryBuilder;
 use reqwest::Client;
 use crate::classes::{Class, ClassSpellCasting};
+use crate::GRAPHQL_API_URL;
 use super::shared::{ApiError, schema};
 
 #[derive(cynic::QueryVariables, Debug)]
@@ -37,7 +38,7 @@ impl Class {
         });
 
         let spells = Client::new()
-            .post("https://www.dnd5eapi.co/graphql")
+            .post(GRAPHQL_API_URL)
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .spells.ok_or(ApiError::Schema)?;

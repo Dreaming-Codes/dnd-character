@@ -4,6 +4,8 @@ pub mod api;
 pub mod abilities;
 pub mod classes;
 
+include!(concat!(env!("OUT_DIR"), "/graphql_url.rs"));
+
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
