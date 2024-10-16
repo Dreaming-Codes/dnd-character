@@ -38,7 +38,7 @@ impl Class {
         });
 
         let spells = Client::new()
-            .post(GRAPHQL_API_URL)
+            .post(GRAPHQL_API_URL.as_str())
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .spells.ok_or(ApiError::Schema)?;

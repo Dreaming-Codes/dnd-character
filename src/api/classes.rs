@@ -409,7 +409,7 @@ impl Class {
         });
 
         let ability_index = Client::new()
-            .post(GRAPHQL_API_URL)
+            .post(GRAPHQL_API_URL.as_str())
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .class.ok_or(ApiError::Schema)?
@@ -430,7 +430,7 @@ impl Class {
         });
 
         let features = Client::new()
-            .post(GRAPHQL_API_URL)
+            .post(GRAPHQL_API_URL.as_str())
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .features.ok_or(ApiError::Schema)?;
@@ -469,7 +469,7 @@ impl Class {
         });
 
         let features = Client::new()
-            .post(GRAPHQL_API_URL)
+            .post(GRAPHQL_API_URL.as_str())
             .run_graphql(op).await?
             .data.ok_or(ApiError::Schema)?
             .features.ok_or(ApiError::Schema)?;
@@ -627,7 +627,7 @@ pub async fn get_spellcasting_slots(index: &str, level: u8) -> Result<Option<Lev
     });
 
     let spellcasting_slots = Client::new()
-        .post(GRAPHQL_API_URL)
+        .post(GRAPHQL_API_URL.as_str())
         .run_graphql(op).await?
         .data.ok_or(ApiError::Schema)?
         .level.ok_or(ApiError::Schema)?

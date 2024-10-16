@@ -4,17 +4,20 @@ pub mod api;
 pub mod abilities;
 pub mod classes;
 
-include!(concat!(env!("OUT_DIR"), "/graphql_url.rs"));
-
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
 use anyhow::{anyhow, bail};
+use lazy_static::lazy_static;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
 use crate::abilities::{Abilities};
 use crate::classes::Classes;
+
+lazy_static! {
+    pub static ref GRAPHQL_API_URL: String = std::env::var("DND_GRAPHQL_API_URL").unwrap_or_else(|_| "https://www.dnd5eapi.co/graphql".to_string());
+}
 
 #[derive(Debug)]
 pub struct UnexpectedAbility;
