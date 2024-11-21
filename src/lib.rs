@@ -69,7 +69,7 @@ pub struct Character {
 
 #[cfg(feature = "utoipa")]
 pub mod utoipa_addon {
-    use utoipa::{Modify, ToSchema};
+    use utoipa::{Modify, PartialSchema, ToSchema};
     use utoipa::openapi::OpenApi;
 
     pub struct ApiDocDndCharacterAddon;
@@ -77,20 +77,14 @@ pub mod utoipa_addon {
     impl Modify for ApiDocDndCharacterAddon {
         fn modify(&self, openapi: &mut OpenApi) {
             if let Some(components) = openapi.components.as_mut() {
-                let schemas = [
-                    super::Character::schema(),
-                    super::Classes::schema(),
-                    super::classes::Class::schema(),
-                    super::classes::ClassProperties::schema(),
-                    super::classes::ClassSpellCasting::schema(),
-                    super::classes::UsableSlots::schema(),
-                    super::Abilities::schema(),
-                    super::abilities::AbilityScore::schema(),
-                ];
-
-                for (name, schema) in schemas {
-                    components.schemas.insert(name.to_string(), schema);
-                }
+                components.schemas.insert(super::classes::ClassProperties::name().to_string(), super::classes::ClassProperties::schema());
+                components.schemas.insert(super::classes::ClassSpellCasting::name().to_string(), super::classes::ClassSpellCasting::schema());
+                components.schemas.insert(super::classes::Class::name().to_string(), super::classes::Class::schema());
+                components.schemas.insert(super::Classes::name().to_string(), super::Classes::schema());
+                components.schemas.insert(super::classes::UsableSlots::name().to_string(), super::classes::UsableSlots::schema());
+                components.schemas.insert(super::Abilities::name().to_string(), super::Abilities::schema());
+                components.schemas.insert(super::abilities::AbilityScore::name().to_string(), super::abilities::AbilityScore::schema());
+                components.schemas.insert(super::Character::name().to_string(), super::Character::schema());
             }
         }
     }
