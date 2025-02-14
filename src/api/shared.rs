@@ -1,9 +1,9 @@
+use cynic::http::CynicReqwestError;
 use std::collections::HashMap;
-use cynic::http::{CynicReqwestError};
 
-use serde_json::json;
 use crate::api::classes::LevelSpellcasting;
 use crate::Character;
+use serde_json::json;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ApiError {
@@ -11,6 +11,8 @@ pub enum ApiError {
     Reqwest(#[from] CynicReqwestError),
     #[error("Schema error")]
     Schema,
+    #[error("Toml serialization error")]
+    TomlError(#[from] toml::ser::Error),
 }
 
 //noinspection RsCompileErrorMacro
@@ -18,21 +20,21 @@ pub enum ApiError {
 pub(super) mod schema {}
 
 #[derive(Debug)]
-pub enum CheckError{
+pub enum CheckError {
     InvalidRace,
     InvalidClass,
     InvalidBackground,
     InvalidAlignment,
-    InvalidAbilities
+    InvalidAbilities,
 }
 
 mod race_query {
-    use cynic::http::ReqwestExt;
-    use reqwest::Client;
-    use crate::api::shared::ApiError;
-    use cynic::QueryBuilder;
-    use crate::{Character, GRAPHQL_API_URL};
     use super::schema;
+    use crate::api::shared::ApiError;
+    use crate::{Character, GRAPHQL_API_URL};
+    use cynic::http::ReqwestExt;
+    use cynic::QueryBuilder;
+    use reqwest::Client;
 
     #[derive(cynic::QueryVariables, Debug)]
     struct SpeedQueryVariables {
@@ -55,14 +57,17 @@ mod race_query {
     impl Character {
         pub async fn get_base_speed(&self) -> Result<i32, ApiError> {
             let op = SpeedQuery::build(SpeedQueryVariables {
-                index: self.race_index.clone()
+                index: self.race_index.clone(),
             });
 
             let speed = Client::new()
                 .post(GRAPHQL_API_URL.as_str())
-                .run_graphql(op).await?
-                .data.ok_or(ApiError::Schema)?
-                .race.ok_or(ApiError::Schema)?
+                .run_graphql(op)
+                .await?
+                .data
+                .ok_or(ApiError::Schema)?
+                .race
+                .ok_or(ApiError::Schema)?
                 .speed;
 
             Ok(speed)
@@ -70,9 +75,10 @@ mod race_query {
     }
 }
 
-
 impl Character {
-    pub async fn get_spellcasting_slots(&self) -> Result<HashMap<String, LevelSpellcasting>, ApiError> {
+    pub async fn get_spellcasting_slots(
+        &self,
+    ) -> Result<HashMap<String, LevelSpellcasting>, ApiError> {
         let mut spellcasting_slots = HashMap::new();
         for class in self.classes.0.iter() {
             let spellcasting_slots_class = class.1.get_spellcasting_slots().await?;
@@ -97,17 +103,24 @@ impl Character {
         let spellcasting_slots = self.get_spellcasting_slots().await?;
         let features = self.get_features(true).await?;
 
-        let mut character = json!(self);
+        // Convert `self` to TOML
+        let mut character = toml::Value::try_from(self)?;
 
         if !spellcasting_slots.is_empty() {
-            character["spellcasting_slots"] = json!(spellcasting_slots);
+            character.as_table_mut().unwrap().insert(
+                "spellcasting_slots".to_string(),
+                toml::Value::try_from(spellcasting_slots)?,
+            );
         }
 
         if !features.is_empty() {
-            character["features"] = json!(features);
+            character
+                .as_table_mut()
+                .unwrap()
+                .insert("features".to_string(), toml::Value::try_from(features)?);
         }
 
-        Ok(character.to_string())
+        Ok(toml::to_string(&character)?)
     }
 
     /// Call this method every day to reset daily vars
