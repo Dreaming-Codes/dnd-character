@@ -120,7 +120,7 @@ impl Character {
                 .insert("features".to_string(), toml::Value::try_from(features)?);
         }
 
-        Ok(toml::to_string(&character)?)
+        Ok(toml::to_string_pretty(&character)?)
     }
 
     /// Call this method every day to reset daily vars
