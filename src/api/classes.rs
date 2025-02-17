@@ -467,6 +467,10 @@ impl CustomLevelFeatureType {
             | "evocation-savant"
             | "potent-cantrip"
             | "second-story-work"
+            | "primeval-awareness"
+            | "vanish"
+            | "hunters-prey-colossus-slayer"
+            | "hunters-prey-giant-killer"
             | "beast-spells" => Some(Passive),
             //x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
             x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => {
