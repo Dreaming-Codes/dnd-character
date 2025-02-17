@@ -465,6 +465,7 @@ impl CustomLevelFeatureType {
             | "divine-intervention-improvement"
             | "persistent-rage"
             | "evocation-savant"
+            | "overchannel"
             | "potent-cantrip"
             | "second-story-work"
             | "primeval-awareness"
