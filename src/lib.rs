@@ -4,19 +4,22 @@ pub mod api;
 pub mod abilities;
 pub mod classes;
 
-use std::cmp::Ordering;
-use std::collections::HashMap;
-use std::fmt;
 use anyhow::{anyhow, bail};
+use api::classes::ChoosableCustomLevelFeatureOption;
 use lazy_static::lazy_static;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
+use std::collections::HashMap;
+use std::fmt;
+use std::ops::Deref;
 
-use crate::abilities::{Abilities};
+use crate::abilities::Abilities;
 use crate::classes::Classes;
 
 lazy_static! {
-    pub static ref GRAPHQL_API_URL: String = std::env::var("DND_GRAPHQL_API_URL").unwrap_or_else(|_| "https://www.dnd5eapi.co/graphql".to_string());
+    pub static ref GRAPHQL_API_URL: String = std::env::var("DND_GRAPHQL_API_URL")
+        .unwrap_or_else(|_| "https://www.dnd5eapi.co/graphql".to_string());
 }
 
 #[derive(Debug)]
@@ -69,31 +72,67 @@ pub struct Character {
 
 #[cfg(feature = "utoipa")]
 pub mod utoipa_addon {
-    use utoipa::{Modify, PartialSchema, ToSchema};
     use utoipa::openapi::OpenApi;
+    use utoipa::{Modify, PartialSchema, ToSchema};
 
     pub struct ApiDocDndCharacterAddon;
 
     impl Modify for ApiDocDndCharacterAddon {
         fn modify(&self, openapi: &mut OpenApi) {
             if let Some(components) = openapi.components.as_mut() {
-                components.schemas.insert(super::classes::ClassProperties::name().to_string(), super::classes::ClassProperties::schema());
-                components.schemas.insert(super::classes::ClassSpellCasting::name().to_string(), super::classes::ClassSpellCasting::schema());
-                components.schemas.insert(super::classes::Class::name().to_string(), super::classes::Class::schema());
-                components.schemas.insert(super::Classes::name().to_string(), super::Classes::schema());
-                components.schemas.insert(super::classes::UsableSlots::name().to_string(), super::classes::UsableSlots::schema());
-                components.schemas.insert(super::Abilities::name().to_string(), super::Abilities::schema());
-                components.schemas.insert(super::abilities::AbilityScore::name().to_string(), super::abilities::AbilityScore::schema());
-                components.schemas.insert(super::Character::name().to_string(), super::Character::schema());
+                components.schemas.insert(
+                    super::classes::ClassProperties::name().to_string(),
+                    super::classes::ClassProperties::schema(),
+                );
+                components.schemas.insert(
+                    super::classes::ClassSpellCasting::name().to_string(),
+                    super::classes::ClassSpellCasting::schema(),
+                );
+                components.schemas.insert(
+                    super::classes::Class::name().to_string(),
+                    super::classes::Class::schema(),
+                );
+                components
+                    .schemas
+                    .insert(super::Classes::name().to_string(), super::Classes::schema());
+                components.schemas.insert(
+                    super::classes::UsableSlots::name().to_string(),
+                    super::classes::UsableSlots::schema(),
+                );
+                components.schemas.insert(
+                    super::Abilities::name().to_string(),
+                    super::Abilities::schema(),
+                );
+                components.schemas.insert(
+                    super::abilities::AbilityScore::name().to_string(),
+                    super::abilities::AbilityScore::schema(),
+                );
+                components.schemas.insert(
+                    super::Character::name().to_string(),
+                    super::Character::schema(),
+                );
             }
         }
     }
 }
 
-const LEVELS: [u32; 19] = [300, 900, 2_700, 6_500, 14_000, 23_000, 34_000, 48_000, 64_000, 85_000, 100_000, 120_000, 140_000, 165_000, 195_000, 225_000, 265_000, 305_000, 355_000];
+const LEVELS: [u32; 19] = [
+    300, 900, 2_700, 6_500, 14_000, 23_000, 34_000, 48_000, 64_000, 85_000, 100_000, 120_000,
+    140_000, 165_000, 195_000, 225_000, 265_000, 305_000, 355_000,
+];
 
 impl Character {
-    pub fn new(main_class: String, name: String, age: u16, race_index: String, subrace_index: String, alignment_index: String, description: String, background_index: String, background_description: String) -> Self {
+    pub fn new(
+        main_class: String,
+        name: String,
+        age: u16,
+        race_index: String,
+        subrace_index: String,
+        alignment_index: String,
+        description: String,
+        background_index: String,
+        background_description: String,
+    ) -> Self {
         Self {
             classes: Classes::new(main_class),
             name,
@@ -116,19 +155,42 @@ impl Character {
     }
 
     pub fn class_armor(&self) -> i8 {
-        match self.classes.0.iter().next().unwrap().0.as_str() {
+        // Get the first class and its name
+        let first_class = self.classes.0.iter().next().unwrap();
+        let class_name = first_class.0.as_str();
+
+        // Calculate the base armor class based on the class type
+        let mut base = match class_name {
             "monk" => {
-                10 + self.abilities_score.dexterity.modifier(0) + self.abilities_score.wisdom.modifier(0)
-            }
-            _ => {
                 10 + self.abilities_score.dexterity.modifier(0)
+                    + self.abilities_score.wisdom.modifier(0)
             }
+            _ => 10 + self.abilities_score.dexterity.modifier(0),
+        };
+
+        // Check if the character has the "Fighting Style: Defense" feature
+        let has_defense_style = first_class.1 .1.fighting_style
+            == Some(
+                ChoosableCustomLevelFeatureOption::FightingStyleDefense
+                    .as_index_str()
+                    .to_string(),
+            );
+
+        // Add bonus if the character has the defense fighting style
+        if has_defense_style {
+            base += 1;
         }
+
+        base
     }
 
     /// Return current level of the character
     pub fn level(&self) -> u8 {
-        LEVELS.iter().filter(|&&x| x <= self.experience_points).count() as u8 + 1
+        LEVELS
+            .iter()
+            .filter(|&&x| x <= self.experience_points)
+            .count() as u8
+            + 1
     }
 
     /// Returns the experience points of the character
@@ -145,7 +207,8 @@ impl Character {
         let previous_level = self.level();
 
         // Limit the experience gotten to the experience needed to reach the next level
-        let experience_to_add = LEVELS.get(self.level() as usize - 1)
+        let experience_to_add = LEVELS
+            .get(self.level() as usize - 1)
             .map_or(experience, |&next_level_points| {
                 (next_level_points - self.experience_points).min(experience)
             });
@@ -160,7 +223,11 @@ impl Character {
         current_level - previous_level
     }
 
-    pub fn remove_item(&mut self, item: &str, amount: Option<u16>) -> anyhow::Result<(), anyhow::Error> {
+    pub fn remove_item(
+        &mut self,
+        item: &str,
+        amount: Option<u16>,
+    ) -> anyhow::Result<(), anyhow::Error> {
         if let Some(quantity) = self.inventory.get_mut(item) {
             let quantity_to_remove = amount.unwrap_or(*quantity);
 
@@ -190,9 +257,7 @@ impl Character {
                 self.add_item(item, amount as u16);
                 Ok(())
             }
-            Ordering::Less => {
-                self.remove_item(item, Some(amount.unsigned_abs() as u16))
-            }
+            Ordering::Less => self.remove_item(item, Some(amount.unsigned_abs() as u16)),
             Ordering::Equal => {
                 bail!("Cannot alter quantity to 0")
             }
