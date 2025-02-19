@@ -1,7 +1,7 @@
-use std::collections::{HashMap};
-use std::hash::Hash;
-use serde::{Deserialize, Serialize};
 use crate::abilities::Abilities;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::hash::Hash;
 
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -10,6 +10,9 @@ use crate::abilities::Abilities;
 pub enum ClassSpellCasting {
     // Wizard
     // Ask the user to prepare spells at the start of the day
+    //
+    // TODO: Add slots and consume them instead of removing from prepared
+    // TODO: daily chosable spells = inteligence + level
     KnowledgePrepared {
         /// Indexes from https://www.dnd5eapi.co/api/spells/
         spells_index: Vec<Vec<String>>,
@@ -20,13 +23,17 @@ pub enum ClassSpellCasting {
     },
     // Cleric, Paladin, Druid
     // Ask the user to prepare spells at the start of the day
+    //
+    // TODO: Add slots and consume them instead of removing from prepared
+    // TODO: cleric/druid daily chosable spells = WISDOM + (level/2)
+    // TODO: paladin daily chosable spells = CHARISMA + (level/2)
     AlreadyKnowPrepared {
         /// Indexes from https://www.dnd5eapi.co/api/spells/
         spells_prepared_index: Vec<Vec<String>>,
         /// If the user has already prepared spells for the day
         pending_preparation: bool,
     },
-    // Bard, Ranger, Warlock
+    // Bard, Ranger, Warlock, (Sorcerer?)
     // No need to ask anything, at the start of the day
     KnowledgeAlreadyPrepared {
         /// Indexes from https://www.dnd5eapi.co/api/spells/
@@ -119,21 +126,16 @@ impl Class {
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Classes(pub HashMap<String, Class>);
 
-
 impl Classes {
     pub fn new(class_index: String) -> Self {
         let mut classes = Self::default();
 
         let spell_casting = match class_index.as_str() {
-            "cleric" | "paladin" | "druid" => {
-                Some(ClassSpellCasting::AlreadyKnowPrepared {
-                    spells_prepared_index: Vec::new(),
-                    pending_preparation: true,
-                })
-            }
-            _ => {
-                None
-            }
+            "cleric" | "paladin" | "druid" => Some(ClassSpellCasting::AlreadyKnowPrepared {
+                spells_prepared_index: Vec::new(),
+                pending_preparation: true,
+            }),
+            _ => None,
         };
 
         let class_properties = ClassProperties {
@@ -141,7 +143,9 @@ impl Classes {
             ..ClassProperties::default()
         };
 
-        classes.0.insert(class_index.clone(), Class(class_index, class_properties));
+        classes
+            .0
+            .insert(class_index.clone(), Class(class_index, class_properties));
         classes
     }
 }
