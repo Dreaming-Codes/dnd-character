@@ -477,6 +477,8 @@ impl CustomLevelFeatureType {
             | "hunters-prey-colossus-slayer"
             | "hunters-prey-giant-killer"
             | "beast-spells" => Some(Passive),
+            // ignored until implementation?
+            "oath-spells" => Some(Ignored),
             //x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
             x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => {
                 Some(Ignored)
