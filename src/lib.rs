@@ -19,7 +19,7 @@ use crate::classes::Classes;
 
 lazy_static! {
     pub static ref GRAPHQL_API_URL: String = std::env::var("DND_GRAPHQL_API_URL")
-        .unwrap_or_else(|_| "https://www.dnd5eapi.co/graphql".to_string());
+        .unwrap_or_else(|_| "https://www.dnd5eapi.co/graphql/2014".to_string());
 }
 
 #[derive(Debug)]
