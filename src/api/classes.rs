@@ -109,6 +109,7 @@ pub struct LevelFeaturesQueryVariables {
 
 #[derive(serde::Serialize, Debug)]
 pub struct LevelFilter {
+    pub gt: Option<u8>,
     pub gte: Option<u8>,
     pub lte: Option<u8>,
 }
@@ -572,8 +573,9 @@ impl Class {
         let op = LevelFeaturesQuery::build(LevelFeaturesQueryVariables {
             class: Some(StringFilter(self.index().to_string())),
             level: Some(LevelFilter {
-                gte: Some(self.1.level),
+                gt: Some(self.1.level),
                 lte: Some(new_level),
+                gte: None,
             }),
         });
 
@@ -620,6 +622,7 @@ impl Class {
             level: Some(LevelFilter {
                 gte: Some(from_level.unwrap_or(0)),
                 lte: Some(self.1.level),
+                gt: None,
             }),
         });
 
