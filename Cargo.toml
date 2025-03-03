@@ -1,6 +1,6 @@
 [package]
 name = "dnd-character"
-version = "0.13.16"
+version = "0.13.17"
 edition = "2021"
 license = "MIT"
 authors = ["DreamingCodes"]
