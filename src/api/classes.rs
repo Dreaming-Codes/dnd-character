@@ -518,6 +518,7 @@ impl CustomLevelFeatureType {
             // Ignore all domain spells until implementation
             x if x.starts_with("domain-spells-") => Some(Ignored),
             x if x.starts_with("hunters-prey") => Some(Choosable(HuntersPrey)),
+            x if x.starts_with("defensive-tactics") => Some(Choosable(DefensiveTactics)),
             x if x.contains("ability-score-improvement") => {
                 Some(Choosable(AbilityScoreImprovement))
             }
