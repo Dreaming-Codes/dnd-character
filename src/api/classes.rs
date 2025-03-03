@@ -137,6 +137,10 @@ pub struct StringFilter(pub String);
 pub enum ChoosableCustomLevelFeature {
     /// Ask the user to spend 2 points in any ability score
     AbilityScoreImprovement,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/hunters-prey
+    HuntersPrey,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/defensive-tactics
+    DefensiveTactics,
     /// https://www.dnd5eapi.co/api/features/pact-boon
     WarlockPact,
     /// https://www.dnd5eapi.co/api/features/additional-fighting-style
@@ -204,6 +208,14 @@ pub enum ChoosableCustomLevelFeatureOption {
     FightingStyleDueling,
     FightingStyleGreatWeaponFighting,
     FightingStyleProtection,
+
+    HuntersPreyGiantKiller,
+    HuntersPreyHordeBreaker,
+    HuntersPreyColossusSlayer,
+
+    DefensiveTacticsSteelWill,
+    DefensiveTacticsEscapeTheHorde,
+    DefensiveTacticsMultiattackDefense,
 }
 
 impl ChoosableCustomLevelFeatureOption {
@@ -303,6 +315,20 @@ impl ChoosableCustomLevelFeature {
                     FightingStyleDueling,
                     FightingStyleGreatWeaponFighting,
                     FightingStyleProtection,
+                ]]
+            }
+            ChoosableCustomLevelFeature::HuntersPrey => {
+                vec![vec![
+                    HuntersPreyGiantKiller,
+                    HuntersPreyHordeBreaker,
+                    HuntersPreyColossusSlayer,
+                ]]
+            }
+            ChoosableCustomLevelFeature::DefensiveTactics => {
+                vec![vec![
+                    DefensiveTacticsSteelWill,
+                    DefensiveTacticsEscapeTheHorde,
+                    DefensiveTacticsMultiattackDefense,
                 ]]
             }
         }
@@ -475,8 +501,6 @@ impl CustomLevelFeatureType {
             | "second-story-work"
             | "primeval-awareness"
             | "vanish"
-            | "hunters-prey-colossus-slayer"
-            | "hunters-prey-giant-killer"
             | "beast-spells" => Some(Passive),
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
@@ -493,6 +517,7 @@ impl CustomLevelFeatureType {
             x if x.starts_with("circle-of-the-land-") => Some(Ignored),
             // Ignore all domain spells until implementation
             x if x.starts_with("domain-spells-") => Some(Ignored),
+            x if x.starts_with("hunters-prey") => Some(Choosable(HuntersPrey)),
             x if x.contains("ability-score-improvement") => {
                 Some(Choosable(AbilityScoreImprovement))
             }
@@ -733,6 +758,18 @@ impl Class {
             | BardProficiencyCharisma => self.set_proficiency(option),
             PactOfTheChain | PactOfTheBlade | PactOfTheTome => {
                 println!("Pact of the Chain, Blade or Tome not yet implemented");
+            }
+            HuntersPreyGiantKiller | HuntersPreyHordeBreaker | HuntersPreyColossusSlayer => {
+                self.1
+                    .hunters_prey
+                    .replace(option.as_index_str().to_string());
+            }
+            DefensiveTacticsSteelWill
+            | DefensiveTacticsEscapeTheHorde
+            | DefensiveTacticsMultiattackDefense => {
+                self.1
+                    .defensive_tactics
+                    .replace(option.as_index_str().to_string());
             }
             FighterFightingStyleArchery
             | FighterFightingStyleDefense
