@@ -137,6 +137,10 @@ impl Classes {
                 spells_prepared_index: Vec::new(),
                 pending_preparation: true,
             }),
+            "ranger" | "bard" | "warlock" => Some(ClassSpellCasting::KnowledgeAlreadyPrepared {
+                spells_index: Vec::new(),
+                usable_slots: UsableSlots::default(),
+            }),
             _ => None,
         };
 
