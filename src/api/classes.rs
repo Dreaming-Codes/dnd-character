@@ -88,6 +88,7 @@ pub struct LevelSpellcasting {
 impl Into<UsableSlots> for LevelSpellcasting {
     fn into(self) -> UsableSlots {
         UsableSlots {
+            cantrip_slots: self.cantrips_known.unwrap_or(0) as u8,
             level_1: self.spell_slots_level_1.unwrap_or(0) as u8,
             level_2: self.spell_slots_level_2.unwrap_or(0) as u8,
             level_3: self.spell_slots_level_3.unwrap_or(0) as u8,

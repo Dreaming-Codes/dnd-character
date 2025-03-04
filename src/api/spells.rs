@@ -1,9 +1,9 @@
+use super::shared::{schema, ApiError};
+use crate::classes::{Class, ClassSpellCasting};
+use crate::GRAPHQL_API_URL;
 use cynic::http::ReqwestExt;
 use cynic::QueryBuilder;
 use reqwest::Client;
-use crate::classes::{Class, ClassSpellCasting};
-use crate::GRAPHQL_API_URL;
-use super::shared::{ApiError, schema};
 
 #[derive(cynic::QueryVariables, Debug)]
 pub struct SpellsQueryVariables {
@@ -39,31 +39,29 @@ impl Class {
 
         let spells = Client::new()
             .post(GRAPHQL_API_URL.as_str())
-            .run_graphql(op).await?
-            .data.ok_or(ApiError::Schema)?
-            .spells.ok_or(ApiError::Schema)?;
+            .run_graphql(op)
+            .await?
+            .data
+            .ok_or(ApiError::Schema)?
+            .spells
+            .ok_or(ApiError::Schema)?;
 
         Ok(spells)
     }
 
     pub async fn get_ready_spells(&self) -> Result<Vec<Vec<String>>, ApiError> {
         match &self.1.spell_casting {
-            None => {
-                Ok(Vec::new())
-            }
-            Some(spell_casting) => {
-                match spell_casting {
-                    ClassSpellCasting::KnowledgePrepared { .. } => {
-                        Ok(Vec::new())
-                    }
-                    ClassSpellCasting::AlreadyKnowPrepared { spells_prepared_index, .. } => {
-                        Ok(spells_prepared_index.clone())
-                    }
-                    ClassSpellCasting::KnowledgeAlreadyPrepared { .. } => {
-                        Ok(Vec::new())
-                    }
+            None => Ok(Vec::new()),
+            Some(spell_casting) => match spell_casting {
+                ClassSpellCasting::KnowledgePrepared { .. } => Ok(Vec::new()),
+                ClassSpellCasting::AlreadyKnowPrepared {
+                    spells_prepared_index,
+                    ..
+                } => Ok(spells_prepared_index.clone()),
+                ClassSpellCasting::KnowledgeAlreadyPrepared { spells_index, .. } => {
+                    Ok(spells_index.clone())
                 }
-            }
+            },
         }
     }
 }

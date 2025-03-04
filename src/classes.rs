@@ -47,6 +47,7 @@ pub enum ClassSpellCasting {
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct UsableSlots {
+    pub cantrip_slots: u8,
     pub level_1: u8,
     pub level_2: u8,
     pub level_3: u8,
