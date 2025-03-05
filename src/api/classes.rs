@@ -819,16 +819,18 @@ impl Class {
                         .replace(option.as_index_str().to_string());
                 }
             }
-            MultiattackVolley | MultiattackWhirlwindAttack => self
-                .1
-                .multiattack
-                .replace(option.as_index_str().to_string()),
+            MultiattackVolley | MultiattackWhirlwindAttack => {
+                self.1
+                    .multiattack
+                    .replace(option.as_index_str().to_string());
+            }
             SuperiorHuntersDefenseEvasion
             | SuperiorHuntersDefenseStandAgainstTheTide
-            | SuperiorHuntersDefenseUncannyDodge => self
-                .1
-                .superior_hunters_defense
-                .replace(option.as_index_str().to_string()),
+            | SuperiorHuntersDefenseUncannyDodge => {
+                self.1
+                    .superior_hunters_defense
+                    .replace(option.as_index_str().to_string());
+            }
         }
     }
 
