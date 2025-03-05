@@ -74,6 +74,8 @@ pub struct ClassProperties {
     pub hunters_prey: Option<String>,
     pub defensive_tactics: Option<String>,
     pub additional_fighting_style: Option<String>,
+    pub multiattack: Option<String>,
+    pub superior_hunters_defense: Option<String>,
     pub abilities_modifiers: Abilities,
 }
 

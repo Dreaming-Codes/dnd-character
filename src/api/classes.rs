@@ -169,6 +169,10 @@ pub enum ChoosableCustomLevelFeature {
     ChooseOne6thLevelSpellFromWarlockList,
     /// https://www.dnd5eapi.co/api/features/paladin-fighting-style
     PaladinFightingStyle,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/multiattack
+    MultiAttack,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/superior-hunters-defense
+    SuperiorHuntersDefense,
 }
 
 #[derive(Clone, Debug)]
@@ -217,6 +221,13 @@ pub enum ChoosableCustomLevelFeatureOption {
     DefensiveTacticsSteelWill,
     DefensiveTacticsEscapeTheHorde,
     DefensiveTacticsMultiattackDefense,
+
+    MultiattackVolley,
+    MultiattackWhirlwindAttack,
+
+    SuperiorHuntersDefenseEvasion,
+    SuperiorHuntersDefenseStandAgainstTheTide,
+    SuperiorHuntersDefenseUncannyDodge,
 }
 
 impl ChoosableCustomLevelFeatureOption {
@@ -332,6 +343,16 @@ impl ChoosableCustomLevelFeature {
                     DefensiveTacticsMultiattackDefense,
                 ]]
             }
+            ChoosableCustomLevelFeature::MultiAttack => {
+                vec![vec![MultiattackWhirlwindAttack, MultiattackVolley]]
+            }
+            ChoosableCustomLevelFeature::SuperiorHuntersDefense => {
+                vec![vec![
+                    SuperiorHuntersDefenseEvasion,
+                    SuperiorHuntersDefenseStandAgainstTheTide,
+                    SuperiorHuntersDefenseUncannyDodge,
+                ]]
+            }
         }
     }
 }
@@ -367,7 +388,6 @@ impl CustomLevelFeatureType {
             | "otherworldly-patron" => Some(Ignored),
             "pact-boon" => Some(Choosable(WarlockPact)),
             "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
-            "ranger-fighting-style" => Some(Choosable(RangerFightingStyle)),
             "fighter-fighting-style" => Some(Choosable(FighterFightingStyle)),
             "bonus-proficiencies" => Some(Choosable(BonusBardProficiency)),
             "bonus-proficiency" => Some(Passive),
@@ -483,8 +503,6 @@ impl CustomLevelFeatureType {
             | "unarmored-movement-1"
             | "unarmored-movement-2"
             | "use-magic-device"
-            | "superior-hunters-defense"
-            | "superior-hunters-defense-evasion"
             | "wild-shape-cr-1-2-or-below-no-flying-speed"
             | "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed"
             | "wild-shape-cr-1-or-below"
@@ -501,7 +519,6 @@ impl CustomLevelFeatureType {
             | "potent-cantrip"
             | "second-story-work"
             | "primeval-awareness"
-            | "vanish"
             | "beast-spells" => Some(Passive),
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
@@ -520,6 +537,11 @@ impl CustomLevelFeatureType {
             x if x.starts_with("domain-spells-") => Some(Ignored),
             x if x.starts_with("hunters-prey") => Some(Choosable(HuntersPrey)),
             x if x.starts_with("defensive-tactics") => Some(Choosable(DefensiveTactics)),
+            x if x.starts_with("multiattack") => Some(Choosable(MultiAttack)),
+            x if x.starts_with("ranger-fighting-style") => Some(Choosable(RangerFightingStyle)),
+            x if x.starts_with("superior-hunters-defense") => {
+                Some(Choosable(SuperiorHuntersDefense))
+            }
             x if x.contains("ability-score-improvement") => {
                 Some(Choosable(AbilityScoreImprovement))
             }
@@ -797,6 +819,16 @@ impl Class {
                         .replace(option.as_index_str().to_string());
                 }
             }
+            MultiattackVolley | MultiattackWhirlwindAttack => self
+                .1
+                .multiattack
+                .replace(option.as_index_str().to_string()),
+            SuperiorHuntersDefenseEvasion
+            | SuperiorHuntersDefenseStandAgainstTheTide
+            | SuperiorHuntersDefenseUncannyDodge => self
+                .1
+                .superior_hunters_defense
+                .replace(option.as_index_str().to_string()),
         }
     }
 
