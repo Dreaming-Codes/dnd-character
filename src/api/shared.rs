@@ -125,7 +125,7 @@ impl Character {
 
     /// Call this method every day to reset daily vars
     pub async fn new_day(&mut self) {
-        self.hp = self.max_hp;
+        self.hp = self.max_hp() as u16;
         self.classes.new_day().await;
     }
 }

@@ -4,6 +4,7 @@ pub mod api;
 pub mod abilities;
 pub mod classes;
 
+use abilities::AbilityScore;
 use anyhow::{anyhow, bail};
 use api::classes::ChoosableCustomLevelFeatureOption;
 use lazy_static::lazy_static;
@@ -63,11 +64,17 @@ pub struct Character {
 
     //Health related stuff
     pub hp: u16,
-    pub max_hp: u16,
+    #[serde(default = "default_hit_dice")]
+    pub hit_dice_result: u16,
 
     pub inventory: HashMap<String, u16>,
 
     pub other: Vec<String>,
+}
+
+/// For parsing legacy support
+fn default_hit_dice() -> u16 {
+    12
 }
 
 #[cfg(feature = "utoipa")]
@@ -149,7 +156,7 @@ impl Character {
 
             abilities_score: Abilities::default(),
             hp: 0,
-            max_hp: 0,
+            hit_dice_result: 0,
             other: vec![],
         }
     }
@@ -262,5 +269,22 @@ impl Character {
                 bail!("Cannot alter quantity to 0")
             }
         }
+    }
+
+    /// Calculate the maximum HP of the character based on constitution modifier and hit dice result
+    pub fn max_hp(&self) -> u16 {
+        let constitution_ability: AbilityScore = self
+            .classes
+            .0
+            .values()
+            .map(|class| class.1.abilities_modifiers.constitution.clone())
+            .sum::<AbilityScore>()
+            + self.abilities_score.constitution.clone();
+
+        let constitution_modifier = constitution_ability.modifier(0);
+
+        (constitution_modifier.max(0) as u16)
+            .saturating_mul(self.level().into())
+            .saturating_add(self.hit_dice_result)
     }
 }
