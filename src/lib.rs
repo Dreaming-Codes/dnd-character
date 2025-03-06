@@ -283,8 +283,9 @@ impl Character {
 
         let constitution_modifier = constitution_ability.modifier(0);
 
-        (constitution_modifier.max(0) as u16)
+        (constitution_modifier as i32)
             .saturating_mul(self.level().into())
-            .saturating_add(self.hit_dice_result)
+            .saturating_add(self.hit_dice_result.into())
+            .max(0) as u16
     }
 }

@@ -113,6 +113,11 @@ impl Character {
             );
         }
 
+        character
+            .as_table_mut()
+            .unwrap()
+            .insert("max_hp".to_string(), toml::Value::try_from(self.max_hp())?);
+
         if !features.is_empty() {
             character
                 .as_table_mut()
@@ -125,7 +130,7 @@ impl Character {
 
     /// Call this method every day to reset daily vars
     pub async fn new_day(&mut self) {
-        self.hp = self.max_hp() as u16;
+        self.hp = self.max_hp();
         self.classes.new_day().await;
     }
 }
