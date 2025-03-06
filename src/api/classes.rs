@@ -170,7 +170,7 @@ pub enum ChoosableCustomLevelFeature {
     /// https://www.dnd5eapi.co/api/features/paladin-fighting-style
     PaladinFightingStyle,
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/multiattack
-    MultiAttack,
+    Multiattack,
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/superior-hunters-defense
     SuperiorHuntersDefense,
 }
@@ -343,7 +343,7 @@ impl ChoosableCustomLevelFeature {
                     DefensiveTacticsMultiattackDefense,
                 ]]
             }
-            ChoosableCustomLevelFeature::MultiAttack => {
+            ChoosableCustomLevelFeature::Multiattack => {
                 vec![vec![MultiattackWhirlwindAttack, MultiattackVolley]]
             }
             ChoosableCustomLevelFeature::SuperiorHuntersDefense => {
@@ -419,10 +419,6 @@ impl CustomLevelFeatureType {
             | "danger-sense"
             | "dark-ones-blessing"
             | "dark-ones-own-luck"
-            | "defensive-tactics"
-            | "defensive-tactics-steel-will"
-            | "defensive-tactics-escape-the-horde"
-            | "defensive-tactics-multiattack-defense"
             | "destroy-undead-cr-1-or-below"
             | "destroy-undead-cr-2-or-below"
             | "destroy-undead-cr-3-or-below"
@@ -537,7 +533,7 @@ impl CustomLevelFeatureType {
             x if x.starts_with("domain-spells-") => Some(Ignored),
             x if x.starts_with("hunters-prey") => Some(Choosable(HuntersPrey)),
             x if x.starts_with("defensive-tactics") => Some(Choosable(DefensiveTactics)),
-            x if x.starts_with("multiattack") => Some(Choosable(MultiAttack)),
+            x if x.starts_with("multiattack") => Some(Choosable(Multiattack)),
             x if x.starts_with("ranger-fighting-style") => Some(Choosable(RangerFightingStyle)),
             x if x.starts_with("superior-hunters-defense") => {
                 Some(Choosable(SuperiorHuntersDefense))
@@ -745,7 +741,7 @@ impl Class {
             }
         }
 
-        let features = features
+        let mut features = features
             .into_iter()
             .filter(|feature| {
                 if let Some(caps) = DICE_REGEX.captures(feature) {
@@ -764,6 +760,13 @@ impl Class {
                 true
             })
             .collect();
+
+        // Add the selected multiattack feature if it exists and we're not requesting passive features
+        if !passive {
+            if let Some(multiattack) = &self.1.multiattack {
+                features.push(multiattack.clone());
+            }
+        }
 
         Ok(features)
     }
