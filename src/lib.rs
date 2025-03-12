@@ -5,7 +5,6 @@ pub mod abilities;
 pub mod classes;
 
 use abilities::AbilityScore;
-use anyhow::{anyhow, bail};
 use api::classes::ChoosableCustomLevelFeatureOption;
 use lazy_static::lazy_static;
 #[cfg(feature = "serde")]
@@ -13,7 +12,6 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
-use std::ops::Deref;
 
 use crate::abilities::Abilities;
 use crate::classes::Classes;
@@ -166,13 +164,14 @@ impl Character {
         let first_class = self.classes.0.iter().next().unwrap();
         let class_name = first_class.0.as_str();
 
+        let abilities_score = self.compound_abilities();
+
         // Calculate the base armor class based on the class type
         let mut base = match class_name {
             "monk" => {
-                10 + self.abilities_score.dexterity.modifier(0)
-                    + self.abilities_score.wisdom.modifier(0)
+                10 + abilities_score.dexterity.modifier(0) + abilities_score.wisdom.modifier(0)
             }
-            _ => 10 + self.abilities_score.dexterity.modifier(0),
+            _ => 10 + abilities_score.dexterity.modifier(0),
         };
 
         // Check if the character has the "Fighting Style: Defense" feature
@@ -271,15 +270,18 @@ impl Character {
         }
     }
 
-    /// Calculate the maximum HP of the character based on constitution modifier and hit dice result
-    pub fn max_hp(&self) -> u16 {
-        let constitution_ability: AbilityScore = self
-            .classes
+    pub fn compound_abilities(&self) -> Abilities {
+        self.classes
             .0
             .values()
-            .map(|class| class.1.abilities_modifiers.constitution.clone())
-            .sum::<AbilityScore>()
-            + self.abilities_score.constitution.clone();
+            .map(|class| class.1.abilities_modifiers.clone())
+            .sum::<Abilities>()
+            + self.abilities_score.clone()
+    }
+
+    /// Calculate the maximum HP of the character based on constitution modifier and hit dice result
+    pub fn max_hp(&self) -> u16 {
+        let constitution_ability: AbilityScore = self.compound_abilities().constitution;
 
         let constitution_modifier = constitution_ability.modifier(0);
 

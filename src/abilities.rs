@@ -69,7 +69,7 @@ pub const ABILITY_NAMES: [&str; 6] = [
     "charisma",
 ];
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
