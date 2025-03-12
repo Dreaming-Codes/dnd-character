@@ -5,6 +5,7 @@ pub mod abilities;
 pub mod classes;
 
 use abilities::AbilityScore;
+use anyhow::bail;
 use api::classes::ChoosableCustomLevelFeatureOption;
 use lazy_static::lazy_static;
 #[cfg(feature = "serde")]
