@@ -766,6 +766,9 @@ impl Class {
             if let Some(multiattack) = &self.1.multiattack {
                 features.push(multiattack.clone());
             }
+            if let Some(hunters_prey) = &self.1.hunters_prey {
+                features.push(hunters_prey);
+            }
         }
 
         Ok(features)
