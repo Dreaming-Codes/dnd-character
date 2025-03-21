@@ -6,7 +6,6 @@ pub mod classes;
 
 use abilities::AbilityScore;
 use anyhow::bail;
-use api::classes::ChoosableCustomLevelFeatureOption;
 use lazy_static::lazy_static;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -176,12 +175,13 @@ impl Character {
         };
 
         // Check if the character has the "Fighting Style: Defense" feature
-        let has_defense_style = first_class.1 .1.fighting_style
-            == Some(
-                ChoosableCustomLevelFeatureOption::FightingStyleDefense
-                    .as_index_str()
-                    .to_string(),
-            );
+        let has_defense_style = first_class
+            .1
+             .1
+            .fighting_style
+            .as_ref()
+            .map(|s| s.contains("defense"))
+            .unwrap_or(false);
 
         // Add bonus if the character has the defense fighting style
         if has_defense_style {
