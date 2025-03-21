@@ -77,6 +77,8 @@ pub struct ClassProperties {
     pub additional_fighting_style: Option<String>,
     pub multiattack: Option<String>,
     pub superior_hunters_defense: Option<String>,
+    pub natural_explorer_terrain_type: Option<Vec<String>>,
+    pub ranger_favored_enemy_type: Option<Vec<String>>,
     pub abilities_modifiers: Abilities,
 }
 

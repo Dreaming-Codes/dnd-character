@@ -173,6 +173,14 @@ pub enum ChoosableCustomLevelFeature {
     Multiattack,
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/superior-hunters-defense
     SuperiorHuntersDefense,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/favored-enemy-1-type
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/favored-enemy-2-types
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/favored-enemy-3-enemies
+    RangerFavoredEnemyType,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/natural-explorer-1-terrain-type
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/natural-explorer-2-terrain-types
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/natural-explorer-3-terrain-types
+    RangerTerrainType,
 }
 
 #[derive(Clone, Debug)]
@@ -201,6 +209,29 @@ pub enum ChoosableCustomLevelFeatureOption {
     RangerFightingStyleDefense,
     RangerFightingStyleDueling,
     RangerFightingStyleTwoWeaponFighting,
+
+    RangerTerrainTypeArctic,
+    RangerTerrainTypeCoast,
+    RangerTerrainTypeDesert,
+    RangerTerrainTypeForest,
+    RangerTerrainTypeGrassland,
+    RangerTerrainTypeMountain,
+    RangerTerrainTypeSwamp,
+
+    RangerFavoredEnemyTypeAberrations,
+    RangerFavoredEnemyTypeBeasts,
+    RangerFavoredEnemyTypeCelestials,
+    RangerFavoredEnemyTypeConstructs,
+    RangerFavoredEnemyTypeDragons,
+    RangerFavoredEnemyTypeElementals,
+    RangerFavoredEnemyTypeFey,
+    RangerFavoredEnemyTypeFiends,
+    RangerFavoredEnemyTypeGiants,
+    RangerFavoredEnemyTypeMonstrosities,
+    RangerFavoredEnemyTypeOozes,
+    RangerFavoredEnemyTypePlants,
+    RangerFavoredEnemyTypeUndead,
+    RangerFavoredEnemyTypeHumanoids,
 
     BardProficiencyStrength,
     BardProficiencyDexterity,
@@ -351,6 +382,35 @@ impl ChoosableCustomLevelFeature {
                     SuperiorHuntersDefenseEvasion,
                     SuperiorHuntersDefenseStandAgainstTheTide,
                     SuperiorHuntersDefenseUncannyDodge,
+                ]]
+            }
+            ChoosableCustomLevelFeature::RangerFavoredEnemyType => {
+                vec![vec![
+                    RangerFavoredEnemyTypeAberrations,
+                    RangerFavoredEnemyTypeBeasts,
+                    RangerFavoredEnemyTypeCelestials,
+                    RangerFavoredEnemyTypeConstructs,
+                    RangerFavoredEnemyTypeDragons,
+                    RangerFavoredEnemyTypeElementals,
+                    RangerFavoredEnemyTypeFey,
+                    RangerFavoredEnemyTypeFiends,
+                    RangerFavoredEnemyTypeGiants,
+                    RangerFavoredEnemyTypeMonstrosities,
+                    RangerFavoredEnemyTypeOozes,
+                    RangerFavoredEnemyTypePlants,
+                    RangerFavoredEnemyTypeUndead,
+                    RangerFavoredEnemyTypeHumanoids,
+                ]]
+            }
+            ChoosableCustomLevelFeature::RangerTerrainType => {
+                vec![vec![
+                    RangerTerrainTypeArctic,
+                    RangerTerrainTypeCoast,
+                    RangerTerrainTypeDesert,
+                    RangerTerrainTypeForest,
+                    RangerTerrainTypeGrassland,
+                    RangerTerrainTypeMountain,
+                    RangerTerrainTypeSwamp,
                 ]]
             }
         }
@@ -535,6 +595,8 @@ impl CustomLevelFeatureType {
             x if x.starts_with("defensive-tactics") => Some(Choosable(DefensiveTactics)),
             x if x.starts_with("multiattack") => Some(Choosable(Multiattack)),
             x if x.starts_with("ranger-fighting-style") => Some(Choosable(RangerFightingStyle)),
+            x if x.starts_with("favored-enemy-") => Some(Choosable(RangerFavoredEnemyType)),
+            x if x.starts_with("natural-explorer-") => Some(Choosable(RangerTerrainType)),
             x if x.starts_with("superior-hunters-defense") => {
                 Some(Choosable(SuperiorHuntersDefense))
             }
@@ -836,6 +898,37 @@ impl Class {
                 self.1
                     .superior_hunters_defense
                     .replace(option.as_index_str().to_string());
+            }
+            RangerTerrainTypeArctic
+            | RangerTerrainTypeCoast
+            | RangerTerrainTypeDesert
+            | RangerTerrainTypeForest
+            | RangerTerrainTypeGrassland
+            | RangerTerrainTypeMountain
+            | RangerTerrainTypeSwamp => {
+                self.1
+                    .natural_explorer_terrain_type
+                    .get_or_insert_with(Vec::new)
+                    .push(option.as_index_str().to_string());
+            }
+            RangerFavoredEnemyTypeAberrations
+            | RangerFavoredEnemyTypeBeasts
+            | RangerFavoredEnemyTypeCelestials
+            | RangerFavoredEnemyTypeConstructs
+            | RangerFavoredEnemyTypeDragons
+            | RangerFavoredEnemyTypeElementals
+            | RangerFavoredEnemyTypeFey
+            | RangerFavoredEnemyTypeFiends
+            | RangerFavoredEnemyTypeGiants
+            | RangerFavoredEnemyTypeMonstrosities
+            | RangerFavoredEnemyTypeOozes
+            | RangerFavoredEnemyTypePlants
+            | RangerFavoredEnemyTypeUndead
+            | RangerFavoredEnemyTypeHumanoids => {
+                self.1
+                    .ranger_favored_enemy_type
+                    .get_or_insert_with(Vec::new)
+                    .push(option.as_index_str().to_string());
             }
         }
     }
