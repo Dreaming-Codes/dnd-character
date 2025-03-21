@@ -171,6 +171,7 @@ impl Character {
             "monk" => {
                 10 + abilities_score.dexterity.modifier(0) + abilities_score.wisdom.modifier(0)
             }
+            "draconic" => 13 + abilities_score.dexterity.modifier(0),
             _ => 10 + abilities_score.dexterity.modifier(0),
         };
 
