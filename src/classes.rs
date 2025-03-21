@@ -21,6 +21,7 @@ pub enum ClassSpellCasting {
         /// If the user has already prepared spells for the day
         pending_preparation: bool,
     },
+    // TEMP: Wizard
     // Cleric, Paladin, Druid
     // Ask the user to prepare spells at the start of the day
     //
@@ -136,10 +137,12 @@ impl Classes {
         let mut classes = Self::default();
 
         let spell_casting = match class_index.as_str() {
-            "cleric" | "paladin" | "druid" => Some(ClassSpellCasting::AlreadyKnowPrepared {
-                spells_prepared_index: Vec::new(),
-                pending_preparation: true,
-            }),
+            "cleric" | "paladin" | "druid" | "wizard " => {
+                Some(ClassSpellCasting::AlreadyKnowPrepared {
+                    spells_prepared_index: Vec::new(),
+                    pending_preparation: true,
+                })
+            }
             "ranger" | "bard" | "warlock" => Some(ClassSpellCasting::KnowledgeAlreadyPrepared {
                 spells_index: Vec::new(),
                 usable_slots: UsableSlots::default(),
