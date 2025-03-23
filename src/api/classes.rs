@@ -576,6 +576,7 @@ impl CustomLevelFeatureType {
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
             "hunters-prey" => Some(Choosable(HuntersPrey)),
+            "superior-hunters-defense" => Some(Choosable(SuperiorHuntersDefense)),
             //x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
             x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => {
                 Some(Ignored)
@@ -594,9 +595,6 @@ impl CustomLevelFeatureType {
             x if x.starts_with("ranger-fighting-style") => Some(Choosable(RangerFightingStyle)),
             x if x.starts_with("favored-enemy-") => Some(Choosable(RangerFavoredEnemyType)),
             x if x.starts_with("natural-explorer-") => Some(Choosable(RangerTerrainType)),
-            x if x.starts_with("superior-hunters-defense") => {
-                Some(Choosable(SuperiorHuntersDefense))
-            }
             x if x.contains("ability-score-improvement") => {
                 Some(Choosable(AbilityScoreImprovement))
             }
