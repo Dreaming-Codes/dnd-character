@@ -578,6 +578,7 @@ impl CustomLevelFeatureType {
             | "beast-spells" => Some(Passive),
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
+            "hunters-prey" => Some(Choosable(HuntersPrey))
             //x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
             x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => {
                 Some(Ignored)
@@ -591,7 +592,6 @@ impl CustomLevelFeatureType {
             x if x.starts_with("circle-of-the-land-") => Some(Ignored),
             // Ignore all domain spells until implementation
             x if x.starts_with("domain-spells-") => Some(Ignored),
-            x if x.starts_with("hunters-prey") => Some(Choosable(HuntersPrey)),
             x if x.starts_with("defensive-tactics") => Some(Choosable(DefensiveTactics)),
             x if x.starts_with("multiattack") => Some(Choosable(Multiattack)),
             x if x.starts_with("ranger-fighting-style") => Some(Choosable(RangerFightingStyle)),
