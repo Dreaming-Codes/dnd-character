@@ -13,7 +13,7 @@ pub struct SpellsQueryVariables {
 #[derive(cynic::QueryFragment, Debug)]
 #[cynic(graphql_type = "Query", variables = "SpellsQueryVariables")]
 pub struct SpellsQuery {
-    #[arguments(class: $class)]
+    #[arguments(class: $class, limit: 999999999)]
     pub spells: Option<Vec<Spell>>,
 }
 
