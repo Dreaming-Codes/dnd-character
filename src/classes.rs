@@ -139,7 +139,7 @@ impl Classes {
         let mut classes = Self::default();
 
         let spell_casting = match class_index.as_str() {
-            "cleric" | "paladin" | "druid" | "wizard " => {
+            "cleric" | "paladin" | "druid" | "wizard" => {
                 Some(ClassSpellCasting::AlreadyKnowPrepared {
                     spells_prepared_index: Vec::new(),
                     pending_preparation: true,
