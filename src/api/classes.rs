@@ -466,6 +466,7 @@ impl CustomLevelFeatureType {
             // TODO: Implement https://www.dnd5eapi.co/api/features/diamond-soul
             "diamond-soul" => Some(Passive),
             "arcane-recovery"
+            | "arcane-tradition"
             | "archdruid"
             | "aura-improvements"
             | "aura-of-courage"
