@@ -183,6 +183,8 @@ pub enum ChoosableCustomLevelFeature {
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/metamagic-2
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/metamagic-3
     Metamagic,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/dragon-ancestor
+    DragonAncestor,
 }
 
 #[derive(Clone, Debug)]
@@ -263,6 +265,27 @@ pub enum ChoosableCustomLevelFeatureOption {
     MetamagicQuickenedSpell,
     MetamagicSubtleSpell,
     MetamagicTwinnedSpell,
+
+    #[serde(rename = "dragon-ancestor-black---acid-damage")]
+    DragonAncestorBlackAcidDamage,
+    #[serde(rename = "dragon-ancestor-blue---lightning-damage")]
+    DragonAncestorBlueLightningDamage,
+    #[serde(rename = "dragon-ancestor-brass---fire-damage")]
+    DragonAncestorBrassFireDamage,
+    #[serde(rename = "dragon-ancestor-bronze---lightning-damage")]
+    DragonAncestorBronzeLightningDamage,
+    #[serde(rename = "dragon-ancestor-copper---acid-damage")]
+    DragonAncestorCopperAcidDamage,
+    #[serde(rename = "dragon-ancestor-gold---fire-damage")]
+    DragonAncestorGoldFireDamage,
+    #[serde(rename = "dragon-ancestor-green---poison-damage")]
+    DragonAncestorGreenPoisonDamage,
+    #[serde(rename = "dragon-ancestor-red---fire-damage")]
+    DragonAncestorRedFireDamage,
+    #[serde(rename = "dragon-ancestor-silver---cold-damage")]
+    DragonAncestorSilverColdDamage,
+    #[serde(rename = "dragon-ancestor-white---cold-damage")]
+    DragonAncestorWhiteColdDamage,
 }
 
 impl ChoosableCustomLevelFeatureOption {
@@ -418,6 +441,20 @@ impl ChoosableCustomLevelFeature {
                     MetamagicTwinnedSpell,
                 ]]
             }
+            ChoosableCustomLevelFeature::DragonAncestor => {
+                vec![vec![
+                    DragonAncestorBlackAcidDamage,
+                    DragonAncestorBlueLightningDamage,
+                    DragonAncestorBrassFireDamage,
+                    DragonAncestorBronzeLightningDamage,
+                    DragonAncestorCopperAcidDamage,
+                    DragonAncestorGoldFireDamage,
+                    DragonAncestorGreenPoisonDamage,
+                    DragonAncestorRedFireDamage,
+                    DragonAncestorSilverColdDamage,
+                    DragonAncestorWhiteColdDamage,
+                ]]
+            }
         }
     }
 }
@@ -494,16 +531,6 @@ impl CustomLevelFeatureType {
             | "draconic-resilience"
             | "draconic-presence"
             | "font-of-magic"
-            | "dragon-ancestor-black---acid-damage"
-            | "dragon-ancestor-blue---lightning-damage"
-            | "dragon-ancestor-brass---fire-damage"
-            | "dragon-ancestor-bronze---lightning-damage"
-            | "dragon-ancestor-copper---acid-damage"
-            | "dragon-ancestor-gold---fire-damage"
-            | "dragon-ancestor-green---poison-damage"
-            | "dragon-ancestor-red---fire-damage"
-            | "dragon-ancestor-silver---cold-damage"
-            | "dragon-ancestor-white---cold-damage"
             | "druid-lands-stride"
             | "druid-timeless-body"
             | "druidic"
@@ -602,6 +629,8 @@ impl CustomLevelFeatureType {
             x if x.starts_with("domain-spells-") => Some(Ignored),
             // ki points not yet implemented
             x if x.starts_with("flexible-casting-") => Some(Ignored),
+            "dragon-ancestor" => Some(Choosable(DragonAncestor)),
+            x if x.starts_with("dragon-ancestor-") => Some(Ignored),
             "defensive-tactics" => Some(Choosable(DefensiveTactics)),
             x if x.starts_with("defensive-tactics-") => Some(Ignored),
             "multiattack" => Some(Choosable(Multiattack)),
@@ -949,6 +978,20 @@ impl Class {
                     .sorcerer_metamagic
                     .get_or_insert_with(Vec::new)
                     .push(option.as_index_str().to_string());
+            }
+            DragonAncestorBlackAcidDamage
+            | DragonAncestorBlueLightningDamage
+            | DragonAncestorBrassFireDamage
+            | DragonAncestorBronzeLightningDamage
+            | DragonAncestorCopperAcidDamage
+            | DragonAncestorGoldFireDamage
+            | DragonAncestorGreenPoisonDamage
+            | DragonAncestorRedFireDamage
+            | DragonAncestorSilverColdDamage
+            | DragonAncestorWhiteColdDamage => {
+                self.1
+                    .sorcerer_dragon_ancestor
+                    .replace(option.as_index_str().to_string());
             }
         }
     }
