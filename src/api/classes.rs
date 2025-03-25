@@ -510,7 +510,6 @@ impl CustomLevelFeatureType {
             | "druidic"
             | "elusive"
             | "empowered-evocation"
-            | "elemental-affinity"
             | "fast-movement"
             | "feral-instinct"
             | "feral-senses"
