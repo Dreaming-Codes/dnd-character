@@ -179,6 +179,10 @@ pub enum ChoosableCustomLevelFeature {
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/natural-explorer-2-terrain-types
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/natural-explorer-3-terrain-types
     RangerTerrainType,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/metamagic-1
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/metamagic-2
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/metamagic-3
+    Metamagic,
 }
 
 #[derive(Clone, Debug)]
@@ -250,6 +254,15 @@ pub enum ChoosableCustomLevelFeatureOption {
     SuperiorHuntersDefenseEvasion,
     SuperiorHuntersDefenseStandAgainstTheTide,
     SuperiorHuntersDefenseUncannyDodge,
+
+    MetamagicCarefullSpell,
+    MetamagicDistantSpell,
+    MetamagicEmpoweredSpell,
+    MetamagicExtendedSpell,
+    MetamagicHeightenedSpell,
+    MetamagicQuickenedSpell,
+    MetamagicSubtleSpell,
+    MetamagicTwinnedSpell,
 }
 
 impl ChoosableCustomLevelFeatureOption {
@@ -390,6 +403,19 @@ impl ChoosableCustomLevelFeature {
                     RangerTerrainTypeGrassland,
                     RangerTerrainTypeMountain,
                     RangerTerrainTypeSwamp,
+                ]]
+            }
+            ChoosableCustomLevelFeature::Metamagic => {
+                vec![vec![
+                    MetamagicCarefullSpell,
+                    MetamagicDistantSpell,
+                    MetamagicEmpoweredSpell,
+                    MetamagicExtendedSpell,
+                    MetamagicHeightenedSpell,
+                    MetamagicQuickenedSpell,
+                    MetamagicSubtleSpell,
+                    MetamagicCarefullSpell,
+                    MetamagicTwinnedSpell,
                 ]]
             }
         }
@@ -552,6 +578,13 @@ impl CustomLevelFeatureType {
             | "beast-spells" => Some(Passive),
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
+            x if x.starts_with("metamagic-") => {
+                if x.len() == 1 {
+                    Some(Choosable(Metamagic))
+                } else {
+                    Some(Ignored)
+                }
+            }
             "hunters-prey" => Some(Choosable(HuntersPrey)),
             x if x.starts_with("hunters-prey-") => Some(Ignored),
             "superior-hunters-defense" => Some(Choosable(SuperiorHuntersDefense)),
@@ -808,6 +841,9 @@ impl Class {
             if let Some(hunters_prey) = &self.1.hunters_prey {
                 features.push(hunters_prey.clone());
             }
+            if let Some(metamagic) = &self.1.sorcerer_metamagic {
+                features.append(&mut metamagic.clone());
+            }
         }
 
         Ok(features)
@@ -898,6 +934,19 @@ impl Class {
             | RangerFavoredEnemyTypeHumanoids => {
                 self.1
                     .ranger_favored_enemy_type
+                    .get_or_insert_with(Vec::new)
+                    .push(option.as_index_str().to_string());
+            }
+            MetamagicCarefullSpell
+            | MetamagicDistantSpell
+            | MetamagicEmpoweredSpell
+            | MetamagicExtendedSpell
+            | MetamagicHeightenedSpell
+            | MetamagicQuickenedSpell
+            | MetamagicSubtleSpell
+            | MetamagicTwinnedSpell => {
+                self.1
+                    .sorcerer_metamagic
                     .get_or_insert_with(Vec::new)
                     .push(option.as_index_str().to_string());
             }

@@ -79,6 +79,7 @@ pub struct ClassProperties {
     pub superior_hunters_defense: Option<String>,
     pub natural_explorer_terrain_type: Option<Vec<String>>,
     pub ranger_favored_enemy_type: Option<Vec<String>>,
+    pub sorcerer_metamagic: Option<Vec<String>>,
     pub abilities_modifiers: Abilities,
 }
 
