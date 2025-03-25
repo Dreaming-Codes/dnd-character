@@ -492,7 +492,6 @@ impl CustomLevelFeatureType {
             | "disciple-of-life"
             | "divine-health"
             | "draconic-resilience"
-            | "dragon-wings"
             | "draconic-presence"
             | "font-of-magic"
             | "dragon-ancestor-black---acid-damage"
