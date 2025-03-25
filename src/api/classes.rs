@@ -150,8 +150,6 @@ pub enum ChoosableCustomLevelFeature {
     FighterFightingStyle,
     /// https://www.dnd5eapi.co/api/features/ranger-fighting-style
     RangerFightingStyle,
-    /// https://www.dnd5eapi.co/api/features/bonus-proficiencies
-    BonusBardProficiency,
     /// Used for
     /// https://www.dnd5eapi.co/api/features/bard-expertise-1
     /// https://www.dnd5eapi.co/api/features/bard-expertise-2
@@ -232,13 +230,6 @@ pub enum ChoosableCustomLevelFeatureOption {
     RangerFavoredEnemyTypePlants,
     RangerFavoredEnemyTypeUndead,
     RangerFavoredEnemyTypeHumanoids,
-
-    BardProficiencyStrength,
-    BardProficiencyDexterity,
-    BardProficiencyConstitution,
-    BardProficiencyIntelligence,
-    BardProficiencyWisdom,
-    BardProficiencyCharisma,
 
     FightingStyleDefense,
     FightingStyleDueling,
@@ -327,18 +318,6 @@ impl ChoosableCustomLevelFeature {
                     RangerFightingStyleDueling,
                     RangerFightingStyleTwoWeaponFighting,
                 ]]
-            }
-            ChoosableCustomLevelFeature::BonusBardProficiency => {
-                let ability_names = vec![
-                    BardProficiencyStrength,
-                    BardProficiencyDexterity,
-                    BardProficiencyConstitution,
-                    BardProficiencyIntelligence,
-                    BardProficiencyWisdom,
-                    BardProficiencyCharisma,
-                ];
-
-                vec![ability_names.clone(), ability_names.clone(), ability_names]
             }
             ChoosableCustomLevelFeature::MultiplyTwoSkillProficiency => {
                 // TODO: Implement this
@@ -449,7 +428,6 @@ impl CustomLevelFeatureType {
             "pact-boon" => Some(Choosable(WarlockPact)),
             "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
             "fighter-fighting-style" => Some(Choosable(FighterFightingStyle)),
-            "bonus-proficiencies" => Some(Choosable(BonusBardProficiency)),
             "bonus-proficiency" => Some(Passive),
             "additional-magical-secrets" | "bonus-cantrip" => Some(Ignored),
             "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => {
@@ -568,6 +546,7 @@ impl CustomLevelFeatureType {
             | "evocation-savant"
             | "overchannel"
             | "potent-cantrip"
+            | "font-of-inspiration"
             | "second-story-work"
             | "primeval-awareness"
             | "beast-spells" => Some(Passive),
@@ -835,12 +814,6 @@ impl Class {
         match option {
             StrengthPlusOne | DexterityPlusOne | ConstitutionPlusOne | IntelligencePlusOne
             | WisdomPlusOne | CharismaPlusOne => self.increase_score(option),
-            BardProficiencyStrength
-            | BardProficiencyDexterity
-            | BardProficiencyConstitution
-            | BardProficiencyIntelligence
-            | BardProficiencyWisdom
-            | BardProficiencyCharisma => self.set_proficiency(option),
             PactOfTheChain | PactOfTheBlade | PactOfTheTome => {
                 println!("Pact of the Chain, Blade or Tome not yet implemented");
             }
@@ -945,30 +918,6 @@ impl Class {
             }
             ChoosableCustomLevelFeatureOption::CharismaPlusOne => {
                 self.1.abilities_modifiers.charisma.score += 1;
-            }
-            _ => {}
-        }
-    }
-
-    fn set_proficiency(&mut self, option: ChoosableCustomLevelFeatureOption) {
-        match option {
-            ChoosableCustomLevelFeatureOption::BardProficiencyStrength => {
-                self.1.abilities_modifiers.strength.proficiency = true;
-            }
-            ChoosableCustomLevelFeatureOption::BardProficiencyDexterity => {
-                self.1.abilities_modifiers.dexterity.proficiency = true;
-            }
-            ChoosableCustomLevelFeatureOption::BardProficiencyConstitution => {
-                self.1.abilities_modifiers.constitution.proficiency = true;
-            }
-            ChoosableCustomLevelFeatureOption::BardProficiencyIntelligence => {
-                self.1.abilities_modifiers.intelligence.proficiency = true;
-            }
-            ChoosableCustomLevelFeatureOption::BardProficiencyWisdom => {
-                self.1.abilities_modifiers.wisdom.proficiency = true;
-            }
-            ChoosableCustomLevelFeatureOption::BardProficiencyCharisma => {
-                self.1.abilities_modifiers.charisma.proficiency = true;
             }
             _ => {}
         }
