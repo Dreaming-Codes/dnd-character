@@ -429,17 +429,30 @@ impl ChoosableCustomLevelFeature {
                 ]]
             }
             ChoosableCustomLevelFeature::Metamagic => {
-                vec![vec![
-                    MetamagicCarefullSpell,
-                    MetamagicDistantSpell,
-                    MetamagicEmpoweredSpell,
-                    MetamagicExtendedSpell,
-                    MetamagicHeightenedSpell,
-                    MetamagicQuickenedSpell,
-                    MetamagicSubtleSpell,
-                    MetamagicCarefullSpell,
-                    MetamagicTwinnedSpell,
-                ]]
+                vec![
+                    vec![
+                        MetamagicCarefullSpell,
+                        MetamagicDistantSpell,
+                        MetamagicEmpoweredSpell,
+                        MetamagicExtendedSpell,
+                        MetamagicHeightenedSpell,
+                        MetamagicQuickenedSpell,
+                        MetamagicSubtleSpell,
+                        MetamagicCarefullSpell,
+                        MetamagicTwinnedSpell,
+                    ],
+                    vec![
+                        MetamagicCarefullSpell,
+                        MetamagicDistantSpell,
+                        MetamagicEmpoweredSpell,
+                        MetamagicExtendedSpell,
+                        MetamagicHeightenedSpell,
+                        MetamagicQuickenedSpell,
+                        MetamagicSubtleSpell,
+                        MetamagicCarefullSpell,
+                        MetamagicTwinnedSpell,
+                    ],
+                ]
             }
             ChoosableCustomLevelFeature::DragonAncestor => {
                 vec![vec![
@@ -604,7 +617,7 @@ impl CustomLevelFeatureType {
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
             x if x.starts_with("metamagic-") => {
-                if x.len() == 1 {
+                if x.len() == 11 {
                     Some(Choosable(Metamagic))
                 } else {
                     Some(Ignored)
