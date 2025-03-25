@@ -600,6 +600,8 @@ impl CustomLevelFeatureType {
             x if x.starts_with("circle-of-the-land-") => Some(Ignored),
             // Ignore all domain spells until implementation
             x if x.starts_with("domain-spells-") => Some(Ignored),
+            // ki points not yet implemented
+            x if x.starts_with("flexible-casting-") => Some(Ignored),
             "defensive-tactics" => Some(Choosable(DefensiveTactics)),
             x if x.starts_with("defensive-tactics-") => Some(Ignored),
             "multiattack" => Some(Choosable(Multiattack)),
