@@ -1,10 +1,10 @@
 use super::shared::schema;
+use crate::GRAPHQL_API_URL;
 use crate::api::classes::CustomLevelFeatureType::Ignored;
 use crate::api::shared::ApiError;
 use crate::classes::{Class, Classes, UsableSlots};
-use crate::GRAPHQL_API_URL;
 use cynic::http::ReqwestExt;
-use cynic::{impl_scalar, QueryBuilder};
+use cynic::{QueryBuilder, impl_scalar};
 use futures::StreamExt;
 use lazy_static::lazy_static;
 use reqwest::Client;
@@ -614,13 +614,13 @@ impl CustomLevelFeatureType {
             x if x.starts_with("hunters-prey-") => Some(Ignored),
             "superior-hunters-defense" => Some(Choosable(SuperiorHuntersDefense)),
             x if x.starts_with("superior-hunters-defenese-") => Some(Ignored),
-            //x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
+            //x if x.starts_with("bard-expertise-")|| x.starts_with("rogue-expertise-") => Some(Choosable(MultiplyTwoSkillProficiency)),
             x if x.starts_with("bard-expertise-") || x.starts_with("rogue-expertise-") => {
                 Some(Ignored)
             } // TODO: Implement this
             x if x.starts_with("spellcasting-") => Some(Ignored),
             // Ignore all eldritch invocations since they are unlocked using invocation known table
-            x if x.starts_with("eldritch-invocation-") => Some(Ignored),
+            x if x.starts_with("eldritch-invocation") => Some(Ignored),
             // Ignore all circle-spells until implementation
             x if x.starts_with("circle-spells-") => Some(Ignored),
             // Ignore all circle of the land until implementation
@@ -639,6 +639,8 @@ impl CustomLevelFeatureType {
             x if x.starts_with("ranger-fighting-style-") => Some(Ignored),
             x if x.starts_with("favored-enemy-") => Some(Choosable(RangerFavoredEnemyType)),
             x if x.starts_with("natural-explorer-") => Some(Choosable(RangerTerrainType)),
+            // Ignore pacts from patc-boon
+            x if x.starts_with("pact-of-the-") => Some(Ignored),
             x if x.contains("ability-score-improvement") => {
                 Some(Choosable(AbilityScoreImprovement))
             }
