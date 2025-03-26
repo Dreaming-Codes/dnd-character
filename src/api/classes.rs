@@ -440,18 +440,7 @@ impl ChoosableCustomLevelFeature {
                     MetamagicTwinnedSpell,
                 ];
 
-                let available_metamagics = all_metamagics
-                    .into_iter()
-                    .filter(|m| {
-                        if let Some(owned_metamagics) = &self.1.sorcerer_metamagic {
-                            !owned_metamagics.contains(&m.as_index_str().to_string())
-                        } else {
-                            true
-                        }
-                    })
-                    .collect::<Vec<_>>();
-
-                vec![available_metamagics.clone(), available_metamagics]
+                vec![all_metamagics.clone(), all_metamagics]
             }
             ChoosableCustomLevelFeature::DragonAncestor => {
                 vec![vec![
