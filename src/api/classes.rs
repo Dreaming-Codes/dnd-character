@@ -542,7 +542,6 @@ impl CustomLevelFeatureType {
             | "disciple-of-life"
             | "divine-health"
             | "draconic-resilience"
-            | "draconic-presence"
             | "font-of-magic"
             | "druid-lands-stride"
             | "druid-timeless-body"
