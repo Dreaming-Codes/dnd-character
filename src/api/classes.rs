@@ -257,7 +257,7 @@ pub enum ChoosableCustomLevelFeatureOption {
     SuperiorHuntersDefenseStandAgainstTheTide,
     SuperiorHuntersDefenseUncannyDodge,
 
-    MetamagicCarefullSpell,
+    MetamagicCarefulSpell,
     MetamagicDistantSpell,
     MetamagicEmpoweredSpell,
     MetamagicExtendedSpell,
@@ -431,25 +431,25 @@ impl ChoosableCustomLevelFeature {
             ChoosableCustomLevelFeature::Metamagic => {
                 vec![
                     vec![
-                        MetamagicCarefullSpell,
+                        MetamagicCarefulSpell,
                         MetamagicDistantSpell,
                         MetamagicEmpoweredSpell,
                         MetamagicExtendedSpell,
                         MetamagicHeightenedSpell,
                         MetamagicQuickenedSpell,
                         MetamagicSubtleSpell,
-                        MetamagicCarefullSpell,
+                        MetamagicCarefulSpell,
                         MetamagicTwinnedSpell,
                     ],
                     vec![
-                        MetamagicCarefullSpell,
+                        MetamagicCarefulSpell,
                         MetamagicDistantSpell,
                         MetamagicEmpoweredSpell,
                         MetamagicExtendedSpell,
                         MetamagicHeightenedSpell,
                         MetamagicQuickenedSpell,
                         MetamagicSubtleSpell,
-                        MetamagicCarefullSpell,
+                        MetamagicCarefulSpell,
                         MetamagicTwinnedSpell,
                     ],
                 ]
@@ -978,7 +978,7 @@ impl Class {
                     .get_or_insert_with(Vec::new)
                     .push(option.as_index_str().to_string());
             }
-            MetamagicCarefullSpell
+            MetamagicCarefulSpell
             | MetamagicDistantSpell
             | MetamagicEmpoweredSpell
             | MetamagicExtendedSpell
