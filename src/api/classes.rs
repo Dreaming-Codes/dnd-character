@@ -488,6 +488,7 @@ impl CustomLevelFeatureType {
             | "druid-circle"
             | "primal-path"
             | "martial-archetype"
+            | "roguish-archetype"
             | "otherworldly-patron" => Some(Ignored),
             "pact-boon" => Some(Choosable(WarlockPact)),
             "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
@@ -786,15 +787,15 @@ impl Class {
         // First convert features to String objects and filter out non-matching features
         let features: Vec<String> = features
             .into_iter()
-            .filter_map(|feature| {
-                match CustomLevelFeatureType::identify(feature.index.clone()) {
+            .filter_map(
+                |feature| match CustomLevelFeatureType::identify(feature.index.clone()) {
                     None => Some(feature.index),
                     Some(custom_type) => match custom_type {
                         CustomLevelFeatureType::Passive if passive => Some(feature.index),
                         _ => None,
                     },
-                }
-            })
+                },
+            )
             .collect();
 
         // Define all regexes at once
@@ -807,20 +808,20 @@ impl Class {
             static ref UNARMORED_MOVEMENT_REGEX: regex::Regex =
                 regex::Regex::new(r"^(unarmored-movement)-(\d+)$").unwrap();
         }
-        
+
         // Track the highest values for each pattern type
         let mut cr_features: HashMap<String, (f32, String)> = HashMap::new();
         let mut dice_features: HashMap<String, u32> = HashMap::new();
         let mut die_dice_features: HashMap<String, u32> = HashMap::new();
         let mut unarmored_movement_features: HashMap<String, (u32, String)> = HashMap::new();
-        
+
         // First pass to collect all the pattern information
         for feature in &features {
             // Process CR pattern
             if let Some(caps) = CR_REGEX.captures(feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
                 let cr_str = caps.get(2).unwrap().as_str();
-                
+
                 // Parse CR value (handling fractions like "1-2" for 1/2)
                 let cr_value = if cr_str.contains('-') {
                     let parts: Vec<&str> = cr_str.split('-').collect();
@@ -833,7 +834,7 @@ impl Class {
                 } else {
                     cr_str.parse::<f32>().unwrap_or(0.0)
                 };
-                
+
                 // Update if this is higher CR for this prefix
                 if let Some((existing_cr, _)) = cr_features.get(&prefix) {
                     if cr_value > *existing_cr {
@@ -844,50 +845,51 @@ impl Class {
                 }
                 continue;
             }
-            
+
             // Process dice-N pattern
             if let Some(caps) = DICE_REGEX.captures(feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
                 let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap_or(0);
-                
+
                 let current_max = dice_features.entry(prefix).or_insert(0);
                 if dice_value > *current_max {
                     *current_max = dice_value;
                 }
                 continue;
             }
-            
+
             // Process N-die/dice pattern
             if let Some(caps) = DIE_DICE_REGEX.captures(feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
                 let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap_or(0);
-                
+
                 let current_max = die_dice_features.entry(prefix).or_insert(0);
                 if dice_value > *current_max {
                     *current_max = dice_value;
                 }
             }
-            
+
             // Process unarmored-movement-N pattern
             if let Some(caps) = UNARMORED_MOVEMENT_REGEX.captures(feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
                 let movement_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap_or(0);
-                
+
                 // Update if this is a higher value for unarmored movement
                 if let Some((existing_value, _)) = unarmored_movement_features.get(&prefix) {
                     if movement_value > *existing_value {
-                        unarmored_movement_features.insert(prefix, (movement_value, feature.clone()));
+                        unarmored_movement_features
+                            .insert(prefix, (movement_value, feature.clone()));
                     }
                 } else {
                     unarmored_movement_features.insert(prefix, (movement_value, feature.clone()));
                 }
             }
         }
-        
+
         // Second pass: Filter to keep only the highest value patterns
         let mut filtered_features = Vec::new();
         let mut has_improved_divine_smite = false;
-        
+
         // First check if improved-divine-smite exists
         for feature in &features {
             if feature == "improved-divine-smite" {
@@ -895,17 +897,17 @@ impl Class {
                 break;
             }
         }
-        
+
         for feature in features {
             // Skip divine-smite if improved-divine-smite is present
             if feature == "divine-smite" && has_improved_divine_smite {
                 continue;
             }
-            
+
             // Handle CR pattern
             if let Some(caps) = CR_REGEX.captures(&feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
-                
+
                 if let Some((_, highest_feature)) = cr_features.get(&prefix) {
                     if &feature == highest_feature {
                         filtered_features.push(feature);
@@ -913,12 +915,17 @@ impl Class {
                 }
                 continue;
             }
-            
+
             // Handle dice pattern
             if let Some(caps) = DICE_REGEX.captures(&feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
-                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().expect("Parsing dice value");
-                
+                let dice_value = caps
+                    .get(2)
+                    .unwrap()
+                    .as_str()
+                    .parse::<u32>()
+                    .expect("Parsing dice value");
+
                 if let Some(&max_dice) = dice_features.get(&prefix) {
                     if dice_value == max_dice {
                         filtered_features.push(feature);
@@ -926,12 +933,17 @@ impl Class {
                 }
                 continue;
             }
-            
+
             // Handle die/dice pattern
             if let Some(caps) = DIE_DICE_REGEX.captures(&feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
-                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().expect("Parsing die/dice value");
-                
+                let dice_value = caps
+                    .get(2)
+                    .unwrap()
+                    .as_str()
+                    .parse::<u32>()
+                    .expect("Parsing die/dice value");
+
                 if let Some(&max_dice) = die_dice_features.get(&prefix) {
                     if dice_value == max_dice {
                         filtered_features.push(feature);
@@ -939,11 +951,11 @@ impl Class {
                 }
                 continue;
             }
-            
+
             // Handle unarmored-movement-N pattern
             if let Some(caps) = UNARMORED_MOVEMENT_REGEX.captures(&feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
-                
+
                 if let Some((_, highest_feature)) = unarmored_movement_features.get(&prefix) {
                     if &feature == highest_feature {
                         filtered_features.push(feature);
@@ -951,11 +963,11 @@ impl Class {
                 }
                 continue;
             }
-            
+
             // Regular feature, keep it
             filtered_features.push(feature);
         }
-        
+
         let mut features = filtered_features;
 
         // Add the selected multiattack feature if it exists and we're not requesting passive features
