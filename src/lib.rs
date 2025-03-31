@@ -172,13 +172,17 @@ impl Character {
                 10 + abilities_score.dexterity.modifier(0) + abilities_score.wisdom.modifier(0)
             }
             "sorcerer" => 13 + abilities_score.dexterity.modifier(0),
+            "barbarian" => {
+                10 + abilities_score.dexterity.modifier(0)
+                    + abilities_score.constitution.modifier(0)
+            }
             _ => 10 + abilities_score.dexterity.modifier(0),
         };
 
         // Check if the character has the "Fighting Style: Defense" feature
         let has_defense_style = first_class
             .1
-             .1
+            .1
             .fighting_style
             .as_ref()
             .map(|s| s.contains("defense"))
