@@ -575,9 +575,6 @@ impl CustomLevelFeatureType {
             | "unarmored-movement-1"
             | "unarmored-movement-2"
             | "use-magic-device"
-            | "wild-shape-cr-1-2-or-below-no-flying-speed"
-            | "wild-shape-cr-1-4-or-below-no-flying-or-swim-speed"
-            | "wild-shape-cr-1-or-below"
             | "ki"
             | "monk-unarmored-defense"
             | "perfect-self"
@@ -595,6 +592,7 @@ impl CustomLevelFeatureType {
             | "beast-spells" => Some(Passive),
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
+            "natural-recovery" => Some(Ignored),
             x if x.starts_with("metamagic-") => {
                 if x.len() == 11 {
                     Some(Choosable(Metamagic))
@@ -616,7 +614,7 @@ impl CustomLevelFeatureType {
             // Ignore all circle-spells until implementation
             x if x.starts_with("circle-spells-") => Some(Ignored),
             // Ignore all circle of the land until implementation
-            x if x.starts_with("circle-of-the-land-") => Some(Ignored),
+            x if x.starts_with("circle-of-the-land") => Some(Ignored),
             // Ignore all domain spells until implementation
             x if x.starts_with("domain-spells-") => Some(Ignored),
             // sorcery points not yet implemented
