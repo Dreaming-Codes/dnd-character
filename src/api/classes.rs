@@ -540,15 +540,6 @@ impl CustomLevelFeatureType {
             | "fast-movement"
             | "feral-instinct"
             | "feral-senses"
-            | "fighter-fighting-style-archery"
-            | "fighter-fighting-style-protection"
-            | "fighter-fighting-style-defense"
-            | "fighter-fighting-style-dueling"
-            | "fighter-fighting-style-great-weapon-fighting"
-            | "fighter-fighting-style-two-weapon-fighting"
-            | "fighting-style-defense"
-            | "fighting-style-dueling"
-            | "fighting-style-great-weapon-fighting"
             | "foe-slayer"
             | "hurl-through-hell"
             | "improved-critical"
@@ -637,7 +628,6 @@ impl CustomLevelFeatureType {
             "multiattack" => Some(Choosable(Multiattack)),
             x if x.starts_with("multiattack-") => Some(Ignored),
             "ranger-fighting-style" => Some(Choosable(RangerFightingStyle)),
-            x if x.starts_with("ranger-fighting-style-") => Some(Ignored),
             x if x.starts_with("favored-enemy-") => Some(Choosable(RangerFavoredEnemyType)),
             x if x.starts_with("natural-explorer-") => Some(Choosable(RangerTerrainType)),
             // Ignore pacts from patc-boon
@@ -645,6 +635,9 @@ impl CustomLevelFeatureType {
             x if x.contains("ability-score-improvement") => {
                 Some(Choosable(AbilityScoreImprovement))
             }
+            x if x.starts_with("fighting-style-") => Some(Ignored),
+            x if x.starts_with("fighter-fighting-style-") => Some(Ignored),
+            x if x.starts_with("ranger-fighting-style-") => Some(Ignored),
             _ => None,
         }
     }
