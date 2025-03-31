@@ -743,7 +743,7 @@ impl Class {
                 CustomLevelFeatureType::Sheet(feature) => match feature {
                     SheetLevelFeatureType::PrimalChampion => {
                         self.1.abilities_modifiers.strength.score += 4;
-                        self.1.abilities_modifiers.dexterity.score += 4;
+                        self.1.abilities_modifiers.constitution.score += 4;
                     }
                 },
                 Ignored => {}
