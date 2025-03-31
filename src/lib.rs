@@ -186,7 +186,14 @@ impl Character {
             .fighting_style
             .as_ref()
             .map(|s| s.contains("defense"))
-            .unwrap_or(false);
+            .unwrap_or(false)
+            || first_class
+                .1
+                .1
+                .additional_fighting_style
+                .as_ref()
+                .map(|s| s.contains("defense"))
+                .unwrap_or(false);
 
         // Add bonus if the character has the defense fighting style
         if has_defense_style {
