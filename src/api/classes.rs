@@ -813,19 +813,20 @@ impl Class {
                 if let Some(caps) = CR_REGEX.captures(feature) {
                     let prefix = caps.get(1).unwrap().as_str().to_string();
                     let cr_str = caps.get(2).unwrap().as_str();
-                    
+
                     // Parse CR value (handling fractions like "1-2" for 1/2)
                     let cr_value = if cr_str.contains('-') {
                         let parts: Vec<&str> = cr_str.split('-').collect();
                         if parts.len() == 2 {
-                            parts[0].parse::<f32>().unwrap_or(0.0) / parts[1].parse::<f32>().unwrap_or(1.0)
+                            parts[0].parse::<f32>().unwrap_or(0.0)
+                                / parts[1].parse::<f32>().unwrap_or(1.0)
                         } else {
                             0.0
                         }
                     } else {
                         cr_str.parse::<f32>().unwrap_or(0.0)
                     };
-                    
+
                     // If we already found a feature with this prefix, only keep the one with higher CR
                     if let Some(existing_cr) = grouped_features.get(&prefix) {
                         if cr_value > *existing_cr {
@@ -846,7 +847,8 @@ impl Class {
                     if let Some(caps) = CR_REGEX.captures(feature) {
                         let prefix = caps.get(1).unwrap().as_str().to_string();
                         // Only keep this feature if it's the one with the highest CR for this prefix
-                        return Some(feature.as_str()) == grouped_feature_indices.get(&prefix).map(|s| s.as_str());
+                        return Some(feature.as_str())
+                            == grouped_feature_indices.get(&prefix).map(|s| s.as_str());
                     }
                     true
                 })
@@ -888,6 +890,47 @@ impl Class {
                         .expect("Parsing dice value");
 
                     if let Some(&max_dice) = grouped_features.get(prefix) {
+                        return dice_value == max_dice;
+                    }
+                }
+                true
+            })
+            .collect();
+
+        // Handle brutal-critical-N-die/dice pattern
+        lazy_static! {
+            static ref DIE_DICE_REGEX: regex::Regex =
+                regex::Regex::new(r"^(.+)-(\d+)-(die|dice)$").unwrap();
+        }
+
+        let mut grouped_die_features: HashMap<String, u32> = HashMap::new();
+        for feature in &features {
+            if let Some(caps) = DIE_DICE_REGEX.captures(feature) {
+                if caps.len() == 4 {
+                    let prefix = caps.get(1).unwrap().as_str().to_string();
+                    let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap();
+
+                    let current_max = grouped_die_features.entry(prefix).or_insert(0);
+                    if dice_value > *current_max {
+                        *current_max = dice_value;
+                    }
+                }
+            }
+        }
+
+        let mut features: Vec<String> = features
+            .into_iter()
+            .filter(|feature| {
+                if let Some(caps) = DIE_DICE_REGEX.captures(feature) {
+                    let prefix = caps.get(1).unwrap().as_str();
+                    let dice_value = caps
+                        .get(2)
+                        .unwrap()
+                        .as_str()
+                        .parse::<u32>()
+                        .expect("Parsing die/dice value");
+
+                    if let Some(&max_dice) = grouped_die_features.get(prefix) {
                         return dice_value == max_dice;
                     }
                 }
