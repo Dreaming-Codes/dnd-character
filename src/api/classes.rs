@@ -925,6 +925,18 @@ impl Class {
                 continue;
             }
             
+            // Handle unarmored-movement-N pattern
+            if let Some(caps) = UNARMORED_MOVEMENT_REGEX.captures(&feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                
+                if let Some((_, highest_feature)) = unarmored_movement_features.get(&prefix) {
+                    if &feature == highest_feature {
+                        filtered_features.push(feature);
+                    }
+                }
+                continue;
+            }
+            
             // Regular feature, keep it
             filtered_features.push(feature);
         }
