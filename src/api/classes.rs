@@ -804,12 +804,15 @@ impl Class {
             static ref DICE_REGEX: regex::Regex = regex::Regex::new(r"^(.+)-d(\d+)$").unwrap();
             static ref DIE_DICE_REGEX: regex::Regex =
                 regex::Regex::new(r"^(.+)-(\d+)-(die|dice)$").unwrap();
+            static ref UNARMORED_MOVEMENT_REGEX: regex::Regex =
+                regex::Regex::new(r"^(unarmored-movement)-(\d+)$").unwrap();
         }
         
         // Track the highest values for each pattern type
         let mut cr_features: HashMap<String, (f32, String)> = HashMap::new();
         let mut dice_features: HashMap<String, u32> = HashMap::new();
         let mut die_dice_features: HashMap<String, u32> = HashMap::new();
+        let mut unarmored_movement_features: HashMap<String, (u32, String)> = HashMap::new();
         
         // First pass to collect all the pattern information
         for feature in &features {
@@ -862,6 +865,21 @@ impl Class {
                 let current_max = die_dice_features.entry(prefix).or_insert(0);
                 if dice_value > *current_max {
                     *current_max = dice_value;
+                }
+            }
+            
+            // Process unarmored-movement-N pattern
+            if let Some(caps) = UNARMORED_MOVEMENT_REGEX.captures(feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                let movement_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap_or(0);
+                
+                // Update if this is a higher value for unarmored movement
+                if let Some((existing_value, _)) = unarmored_movement_features.get(&prefix) {
+                    if movement_value > *existing_value {
+                        unarmored_movement_features.insert(prefix, (movement_value, feature.clone()));
+                    }
+                } else {
+                    unarmored_movement_features.insert(prefix, (movement_value, feature.clone()));
                 }
             }
         }
