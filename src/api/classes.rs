@@ -886,7 +886,22 @@ impl Class {
         
         // Second pass: Filter to keep only the highest value patterns
         let mut filtered_features = Vec::new();
+        let mut has_improved_divine_smite = false;
+        
+        // First check if improved-divine-smite exists
+        for feature in &features {
+            if feature == "improved-divine-smite" {
+                has_improved_divine_smite = true;
+                break;
+            }
+        }
+        
         for feature in features {
+            // Skip divine-smite if improved-divine-smite is present
+            if feature == "divine-smite" && has_improved_divine_smite {
+                continue;
+            }
+            
             // Handle CR pattern
             if let Some(caps) = CR_REGEX.captures(&feature) {
                 let prefix = caps.get(1).unwrap().as_str().to_string();
