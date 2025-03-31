@@ -494,6 +494,8 @@ impl CustomLevelFeatureType {
             "additional-fighting-style" => Some(Choosable(AdditionalFighterFightingStyle)),
             "fighter-fighting-style" => Some(Choosable(FighterFightingStyle)),
             "bonus-proficiency" => Some(Passive),
+            // TODO: Ignored until skill implementation
+            "bonus-proficiencies" => Some(Ignored),
             "additional-magical-secrets" | "bonus-cantrip" => Some(Ignored),
             "channel-divinity-1-rest" | "channel-divinity-2-rest" | "channel-divinity-3-rest" => {
                 Some(Ignored)
