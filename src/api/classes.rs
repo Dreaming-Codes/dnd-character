@@ -784,7 +784,7 @@ impl Class {
             .ok_or(ApiError::Schema)?;
 
         // Remove all identifiable features
-        let mut features: Vec<String> = features
+        let features: Vec<String> = features
             .into_iter()
             .filter(
                 |feature| match CustomLevelFeatureType::identify(feature.index.clone()) {
