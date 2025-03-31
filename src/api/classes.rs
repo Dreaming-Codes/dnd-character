@@ -877,7 +877,7 @@ impl Class {
             }
         }
 
-        let mut features: Vec<String> = features
+        let features: Vec<String> = features
             .into_iter()
             .filter(|feature| {
                 if let Some(caps) = DICE_REGEX.captures(feature) {
