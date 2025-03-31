@@ -783,160 +783,135 @@ impl Class {
             .features
             .ok_or(ApiError::Schema)?;
 
-        // Remove all identifiable features
+        // First convert features to String objects and filter out non-matching features
         let features: Vec<String> = features
             .into_iter()
-            .filter(
-                |feature| match CustomLevelFeatureType::identify(feature.index.clone()) {
-                    None => true,
+            .filter_map(|feature| {
+                match CustomLevelFeatureType::identify(feature.index.clone()) {
+                    None => Some(feature.index),
                     Some(custom_type) => match custom_type {
-                        CustomLevelFeatureType::Passive => passive,
-                        _ => false,
+                        CustomLevelFeatureType::Passive if passive => Some(feature.index),
+                        _ => None,
                     },
-                },
-            )
-            .map(|feature| feature.index)
-            .collect();
-
-        let features: Vec<String> = {
-            lazy_static! {
-                static ref CR_REGEX: regex::Regex =
-                    regex::Regex::new(r"(.*)-cr-([0-9]+(?:-[0-9]+)?)-or-below.*").unwrap();
-            }
-
-            // Group features by their prefix (e.g., "destroy-undead", "wild-shape") and track highest CR
-            let mut grouped_features: HashMap<String, f32> = HashMap::new();
-            let mut grouped_feature_indices: HashMap<String, String> = HashMap::new();
-
-            // First pass: collect all CR features and determine the highest CR for each prefix
-            for feature in &features {
-                if let Some(caps) = CR_REGEX.captures(feature) {
-                    let prefix = caps.get(1).unwrap().as_str().to_string();
-                    let cr_str = caps.get(2).unwrap().as_str();
-
-                    // Parse CR value (handling fractions like "1-2" for 1/2)
-                    let cr_value = if cr_str.contains('-') {
-                        let parts: Vec<&str> = cr_str.split('-').collect();
-                        if parts.len() == 2 {
-                            parts[0].parse::<f32>().unwrap_or(0.0)
-                                / parts[1].parse::<f32>().unwrap_or(1.0)
-                        } else {
-                            0.0
-                        }
-                    } else {
-                        cr_str.parse::<f32>().unwrap_or(0.0)
-                    };
-
-                    // If we already found a feature with this prefix, only keep the one with higher CR
-                    if let Some(existing_cr) = grouped_features.get(&prefix) {
-                        if cr_value > *existing_cr {
-                            grouped_features.insert(prefix.clone(), cr_value);
-                            grouped_feature_indices.insert(prefix, feature.clone());
-                        }
-                    } else {
-                        grouped_features.insert(prefix.clone(), cr_value);
-                        grouped_feature_indices.insert(prefix, feature.clone());
-                    }
                 }
-            }
-
-            // Filter the features to keep only the highest CR for each prefix
-            let filtered_features: Vec<String> = features
-                .iter()
-                .filter(|feature| {
-                    if let Some(caps) = CR_REGEX.captures(feature) {
-                        let prefix = caps.get(1).unwrap().as_str().to_string();
-                        // Only keep this feature if it's the one with the highest CR for this prefix
-                        return Some(feature.as_str())
-                            == grouped_feature_indices.get(&prefix).map(|s| s.as_str());
-                    }
-                    true
-                })
-                .map(|feature| feature.clone())
-                .collect();
-
-            filtered_features
-        };
-
-        lazy_static! {
-            static ref DICE_REGEX: regex::Regex = regex::Regex::new(r"^(.+)-d(\d+)$").unwrap();
-        }
-
-        let mut grouped_features: HashMap<String, u32> = HashMap::new();
-        for feature in &features {
-            if let Some(caps) = DICE_REGEX.captures(feature) {
-                if caps.len() == 3 {
-                    let prefix = caps.get(1).unwrap().as_str().to_string();
-                    let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap();
-
-                    let current_max = grouped_features.entry(prefix).or_insert(0);
-                    if dice_value > *current_max {
-                        *current_max = dice_value;
-                    }
-                }
-            }
-        }
-
-        let features: Vec<String> = features
-            .into_iter()
-            .filter(|feature| {
-                if let Some(caps) = DICE_REGEX.captures(feature) {
-                    let prefix = caps.get(1).unwrap().as_str();
-                    let dice_value = caps
-                        .get(2)
-                        .unwrap()
-                        .as_str()
-                        .parse::<u32>()
-                        .expect("Parsing dice value");
-
-                    if let Some(&max_dice) = grouped_features.get(prefix) {
-                        return dice_value == max_dice;
-                    }
-                }
-                true
             })
             .collect();
 
-        // Handle brutal-critical-N-die/dice pattern
+        // Define all regexes at once
         lazy_static! {
+            static ref CR_REGEX: regex::Regex =
+                regex::Regex::new(r"(.*)-cr-([0-9]+(?:-[0-9]+)?)-or-below.*").unwrap();
+            static ref DICE_REGEX: regex::Regex = regex::Regex::new(r"^(.+)-d(\d+)$").unwrap();
             static ref DIE_DICE_REGEX: regex::Regex =
                 regex::Regex::new(r"^(.+)-(\d+)-(die|dice)$").unwrap();
         }
-
-        let mut grouped_die_features: HashMap<String, u32> = HashMap::new();
+        
+        // Track the highest values for each pattern type
+        let mut cr_features: HashMap<String, (f32, String)> = HashMap::new();
+        let mut dice_features: HashMap<String, u32> = HashMap::new();
+        let mut die_dice_features: HashMap<String, u32> = HashMap::new();
+        
+        // First pass to collect all the pattern information
         for feature in &features {
-            if let Some(caps) = DIE_DICE_REGEX.captures(feature) {
-                if caps.len() == 4 {
-                    let prefix = caps.get(1).unwrap().as_str().to_string();
-                    let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap();
-
-                    let current_max = grouped_die_features.entry(prefix).or_insert(0);
-                    if dice_value > *current_max {
-                        *current_max = dice_value;
+            // Process CR pattern
+            if let Some(caps) = CR_REGEX.captures(feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                let cr_str = caps.get(2).unwrap().as_str();
+                
+                // Parse CR value (handling fractions like "1-2" for 1/2)
+                let cr_value = if cr_str.contains('-') {
+                    let parts: Vec<&str> = cr_str.split('-').collect();
+                    if parts.len() == 2 {
+                        parts[0].parse::<f32>().unwrap_or(0.0)
+                            / parts[1].parse::<f32>().unwrap_or(1.0)
+                    } else {
+                        0.0
                     }
+                } else {
+                    cr_str.parse::<f32>().unwrap_or(0.0)
+                };
+                
+                // Update if this is higher CR for this prefix
+                if let Some((existing_cr, _)) = cr_features.get(&prefix) {
+                    if cr_value > *existing_cr {
+                        cr_features.insert(prefix, (cr_value, feature.clone()));
+                    }
+                } else {
+                    cr_features.insert(prefix, (cr_value, feature.clone()));
+                }
+                continue;
+            }
+            
+            // Process dice-N pattern
+            if let Some(caps) = DICE_REGEX.captures(feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap_or(0);
+                
+                let current_max = dice_features.entry(prefix).or_insert(0);
+                if dice_value > *current_max {
+                    *current_max = dice_value;
+                }
+                continue;
+            }
+            
+            // Process N-die/dice pattern
+            if let Some(caps) = DIE_DICE_REGEX.captures(feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().unwrap_or(0);
+                
+                let current_max = die_dice_features.entry(prefix).or_insert(0);
+                if dice_value > *current_max {
+                    *current_max = dice_value;
                 }
             }
         }
-
-        let mut features: Vec<String> = features
-            .into_iter()
-            .filter(|feature| {
-                if let Some(caps) = DIE_DICE_REGEX.captures(feature) {
-                    let prefix = caps.get(1).unwrap().as_str();
-                    let dice_value = caps
-                        .get(2)
-                        .unwrap()
-                        .as_str()
-                        .parse::<u32>()
-                        .expect("Parsing die/dice value");
-
-                    if let Some(&max_dice) = grouped_die_features.get(prefix) {
-                        return dice_value == max_dice;
+        
+        // Second pass: Filter to keep only the highest value patterns
+        let mut filtered_features = Vec::new();
+        for feature in features {
+            // Handle CR pattern
+            if let Some(caps) = CR_REGEX.captures(&feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                
+                if let Some((_, highest_feature)) = cr_features.get(&prefix) {
+                    if &feature == highest_feature {
+                        filtered_features.push(feature);
                     }
                 }
-                true
-            })
-            .collect();
+                continue;
+            }
+            
+            // Handle dice pattern
+            if let Some(caps) = DICE_REGEX.captures(&feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().expect("Parsing dice value");
+                
+                if let Some(&max_dice) = dice_features.get(&prefix) {
+                    if dice_value == max_dice {
+                        filtered_features.push(feature);
+                    }
+                }
+                continue;
+            }
+            
+            // Handle die/dice pattern
+            if let Some(caps) = DIE_DICE_REGEX.captures(&feature) {
+                let prefix = caps.get(1).unwrap().as_str().to_string();
+                let dice_value = caps.get(2).unwrap().as_str().parse::<u32>().expect("Parsing die/dice value");
+                
+                if let Some(&max_dice) = die_dice_features.get(&prefix) {
+                    if dice_value == max_dice {
+                        filtered_features.push(feature);
+                    }
+                }
+                continue;
+            }
+            
+            // Regular feature, keep it
+            filtered_features.push(feature);
+        }
+        
+        let mut features = filtered_features;
 
         // Add the selected multiattack feature if it exists and we're not requesting passive features
         if !passive {
