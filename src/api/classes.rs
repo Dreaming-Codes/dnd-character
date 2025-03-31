@@ -801,28 +801,59 @@ impl Class {
         let features: Vec<String> = {
             lazy_static! {
                 static ref CR_REGEX: regex::Regex =
-                    regex::Regex::new(r"destroy-undead-cr-([0-9]+(?:-[0-9]+)?)\-or-below").unwrap();
+                    regex::Regex::new(r"(.*)-cr-([0-9]+(?:-[0-9]+)?)-or-below.*").unwrap();
             }
 
-            let mut found = false;
+            // Group features by their prefix (e.g., "destroy-undead", "wild-shape") and track highest CR
+            let mut grouped_features: HashMap<String, f32> = HashMap::new();
+            let mut grouped_feature_indices: HashMap<String, String> = HashMap::new();
 
-            features
-                .iter_mut()
-                .rev()
-                .filter(|feature| {
-                    if CR_REGEX.is_match(feature) {
-                        if found {
-                            false
+            // First pass: collect all CR features and determine the highest CR for each prefix
+            for feature in &features {
+                if let Some(caps) = CR_REGEX.captures(feature) {
+                    let prefix = caps.get(1).unwrap().as_str().to_string();
+                    let cr_str = caps.get(2).unwrap().as_str();
+                    
+                    // Parse CR value (handling fractions like "1-2" for 1/2)
+                    let cr_value = if cr_str.contains('-') {
+                        let parts: Vec<&str> = cr_str.split('-').collect();
+                        if parts.len() == 2 {
+                            parts[0].parse::<f32>().unwrap_or(0.0) / parts[1].parse::<f32>().unwrap_or(1.0)
                         } else {
-                            found = true;
-                            true
+                            0.0
                         }
                     } else {
-                        true
+                        cr_str.parse::<f32>().unwrap_or(0.0)
+                    };
+                    
+                    // If we already found a feature with this prefix, only keep the one with higher CR
+                    if let Some(existing_cr) = grouped_features.get(&prefix) {
+                        if cr_value > *existing_cr {
+                            grouped_features.insert(prefix.clone(), cr_value);
+                            grouped_feature_indices.insert(prefix, feature.clone());
+                        }
+                    } else {
+                        grouped_features.insert(prefix.clone(), cr_value);
+                        grouped_feature_indices.insert(prefix, feature.clone());
                     }
+                }
+            }
+
+            // Filter the features to keep only the highest CR for each prefix
+            let filtered_features: Vec<String> = features
+                .iter()
+                .filter(|feature| {
+                    if let Some(caps) = CR_REGEX.captures(feature) {
+                        let prefix = caps.get(1).unwrap().as_str().to_string();
+                        // Only keep this feature if it's the one with the highest CR for this prefix
+                        return Some(feature.as_str()) == grouped_feature_indices.get(&prefix).map(|s| s.as_str());
+                    }
+                    true
                 })
                 .map(|feature| feature.clone())
-                .collect()
+                .collect();
+
+            filtered_features
         };
 
         lazy_static! {

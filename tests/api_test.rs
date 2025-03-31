@@ -1,7 +1,7 @@
 #![cfg(feature = "api")]
 
-use dnd_character::api::classes::ChoosableCustomLevelFeatureOption;
 use dnd_character::Character;
+use dnd_character::api::classes::ChoosableCustomLevelFeatureOption;
 
 #[tokio::test]
 async fn get_level_features() {
@@ -37,8 +37,44 @@ async fn get_level_features() {
         features
             .iter()
             .filter(|feature| feature.starts_with("destroy-undead-cr-"))
-            .count(),
-        1
+            .collect::<Vec<&String>>(),
+        vec!["destroy-undead-cr-4-or-below"]
+    );
+
+    let mut dnd_character = Character::new(
+        "druid".to_string(),
+        "a".to_string(),
+        16,
+        "human".to_string(),
+        "human".to_string(),
+        "chaotic-neutral".to_string(),
+        "bard".to_string(),
+        "".to_string(),
+        "".to_string(),
+    );
+
+    dnd_character.add_experience(90000);
+    let _ = dnd_character
+        .classes
+        .0
+        .iter_mut()
+        .next()
+        .unwrap()
+        .1
+        .set_level(20)
+        .await;
+
+    let features = dnd_character
+        .get_features(true)
+        .await
+        .expect("Error in API Request");
+
+    assert_eq!(
+        features
+            .iter()
+            .filter(|feature| feature.starts_with("wild-shape-cr-"))
+            .collect::<Vec<&String>>(),
+        vec!["wild-shape-cr-1-or-below"]
     );
 
     let mut dnd_character = Character::new(
