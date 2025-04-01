@@ -80,6 +80,7 @@ pub struct ClassProperties {
     pub natural_explorer_terrain_type: Option<Vec<String>>,
     pub ranger_favored_enemy_type: Option<Vec<String>>,
     pub sorcerer_metamagic: Option<Vec<String>>,
+    pub warlock_eldritch_invocation: Option<Vec<String>>,
     pub sorcerer_dragon_ancestor: Option<String>,
     pub abilities_modifiers: Abilities,
 }

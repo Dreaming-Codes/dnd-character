@@ -183,6 +183,8 @@ pub enum ChoosableCustomLevelFeature {
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/metamagic-2
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/metamagic-3
     Metamagic,
+    /// https://dnd5eapi.rpgmaster.ai/api/2014/features/eldritch-invocations
+    EldritchInvocations,
     /// https://dnd5eapi.rpgmaster.ai/api/2014/features/dragon-ancestor
     DragonAncestor,
 }
@@ -265,6 +267,39 @@ pub enum ChoosableCustomLevelFeatureOption {
     MetamagicQuickenedSpell,
     MetamagicSubtleSpell,
     MetamagicTwinnedSpell,
+
+    EldritchInvocationAgonizingBlast,
+    EldritchInvocationArmorOfShadows,
+    EldritchInvocationAscendantStep,
+    EldritchInvocationBeastSpeech,
+    EldritchInvocationBeguilingInfluence,
+    EldritchInvocationBewitchingWhispers,
+    EldritchInvocationBookOfAncientSecrets,
+    EldritchInvocationChainsOfCarceri,
+    EldritchInvocationDevilsSight,
+    EldritchInvocationDreadfulWord,
+    EldritchInvocationEldritchSight,
+    EldritchInvocationEldritchSpear,
+    EldritchInvocationEyesOfTheRuneKeeper,
+    EldritchInvocationFiendishVigor,
+    EldritchInvocationGazeOfTwoMinds,
+    EldritchInvocationLifedrinker,
+    EldritchInvocationMaskOfManyFaces,
+    EldritchInvocationMasterOfMyriadForms,
+    EldritchInvocationMinionsOfChaos,
+    EldritchInvocationMireTheMind,
+    EldritchInvocationMistyVisions,
+    EldritchInvocationOneWithShadows,
+    EldritchInvocationOtherworldlyLeap,
+    EldritchInvocationRepellingBlast,
+    EldritchInvocationSculptorOfFlesh,
+    EldritchInvocationSignOfIllOmen,
+    EldritchInvocationThiefOfFiveFates,
+    EldritchInvocationThirstingBlade,
+    EldritchInvocationVisionsOfDistantRealms,
+    EldritchInvocationVoiceOfTheChainMaster,
+    EldritchInvocationWhispersOfTheGrave,
+    EldritchInvocationWitchSight,
 
     #[serde(rename = "dragon-ancestor-black---acid-damage")]
     DragonAncestorBlackAcidDamage,
@@ -442,6 +477,44 @@ impl ChoosableCustomLevelFeature {
 
                 vec![all_metamagics.clone(), all_metamagics]
             }
+            ChoosableCustomLevelFeature::EldritchInvocations => {
+                let all_eldritch_invocations = vec![
+                    EldritchInvocationAgonizingBlast,
+                    EldritchInvocationArmorOfShadows,
+                    EldritchInvocationAscendantStep,
+                    EldritchInvocationBeastSpeech,
+                    EldritchInvocationBeguilingInfluence,
+                    EldritchInvocationBewitchingWhispers,
+                    EldritchInvocationBookOfAncientSecrets,
+                    EldritchInvocationChainsOfCarceri,
+                    EldritchInvocationDevilsSight,
+                    EldritchInvocationDreadfulWord,
+                    EldritchInvocationEldritchSight,
+                    EldritchInvocationEldritchSpear,
+                    EldritchInvocationEyesOfTheRuneKeeper,
+                    EldritchInvocationFiendishVigor,
+                    EldritchInvocationGazeOfTwoMinds,
+                    EldritchInvocationLifedrinker,
+                    EldritchInvocationMaskOfManyFaces,
+                    EldritchInvocationMasterOfMyriadForms,
+                    EldritchInvocationMinionsOfChaos,
+                    EldritchInvocationMireTheMind,
+                    EldritchInvocationMistyVisions,
+                    EldritchInvocationOneWithShadows,
+                    EldritchInvocationOtherworldlyLeap,
+                    EldritchInvocationRepellingBlast,
+                    EldritchInvocationSculptorOfFlesh,
+                    EldritchInvocationSignOfIllOmen,
+                    EldritchInvocationThiefOfFiveFates,
+                    EldritchInvocationThirstingBlade,
+                    EldritchInvocationVisionsOfDistantRealms,
+                    EldritchInvocationVoiceOfTheChainMaster,
+                    EldritchInvocationWhispersOfTheGrave,
+                    EldritchInvocationWitchSight,
+                ];
+
+                vec![all_eldritch_invocations.clone(), all_eldritch_invocations]
+            }
             ChoosableCustomLevelFeature::DragonAncestor => {
                 vec![vec![
                     DragonAncestorBlackAcidDamage,
@@ -595,6 +668,7 @@ impl CustomLevelFeatureType {
             // ignored until implementation?
             "oath-spells" => Some(Ignored),
             "natural-recovery" => Some(Ignored),
+            "eldritch-invocations" => Some(Choosable(EldritchInvocations)),
             x if x.starts_with("metamagic-") => {
                 if x.len() == 11 {
                     Some(Choosable(Metamagic))
@@ -612,7 +686,7 @@ impl CustomLevelFeatureType {
             } // TODO: Implement this
             x if x.starts_with("spellcasting-") => Some(Ignored),
             // Ignore all eldritch invocations since they are unlocked using invocation known table
-            x if x.starts_with("eldritch-invocation") => Some(Ignored),
+            x if x.starts_with("eldritch-invocation-") => Some(Ignored),
             // Ignore all circle-spells until implementation
             x if x.starts_with("circle-spells-") => Some(Ignored),
             // Ignore all circle of the land until implementation
@@ -974,6 +1048,9 @@ impl Class {
             if let Some(metamagic) = &self.1.sorcerer_metamagic {
                 features.append(&mut metamagic.clone());
             }
+            if let Some(eldritch_invocation) = &self.1.warlock_eldritch_invocation {
+                features.append(&mut eldritch_invocation.clone());
+            }
         }
 
         Ok(features)
@@ -1077,6 +1154,43 @@ impl Class {
             | MetamagicTwinnedSpell => {
                 self.1
                     .sorcerer_metamagic
+                    .get_or_insert_with(Vec::new)
+                    .push(option.as_index_str().to_string());
+            }
+            EldritchInvocationAgonizingBlast
+            | EldritchInvocationArmorOfShadows
+            | EldritchInvocationAscendantStep
+            | EldritchInvocationBeastSpeech
+            | EldritchInvocationBeguilingInfluence
+            | EldritchInvocationBewitchingWhispers
+            | EldritchInvocationBookOfAncientSecrets
+            | EldritchInvocationChainsOfCarceri
+            | EldritchInvocationDevilsSight
+            | EldritchInvocationDreadfulWord
+            | EldritchInvocationEldritchSight
+            | EldritchInvocationEldritchSpear
+            | EldritchInvocationEyesOfTheRuneKeeper
+            | EldritchInvocationFiendishVigor
+            | EldritchInvocationGazeOfTwoMinds
+            | EldritchInvocationLifedrinker
+            | EldritchInvocationMaskOfManyFaces
+            | EldritchInvocationMasterOfMyriadForms
+            | EldritchInvocationMinionsOfChaos
+            | EldritchInvocationMireTheMind
+            | EldritchInvocationMistyVisions
+            | EldritchInvocationOneWithShadows
+            | EldritchInvocationOtherworldlyLeap
+            | EldritchInvocationRepellingBlast
+            | EldritchInvocationSculptorOfFlesh
+            | EldritchInvocationSignOfIllOmen
+            | EldritchInvocationThiefOfFiveFates
+            | EldritchInvocationThirstingBlade
+            | EldritchInvocationVisionsOfDistantRealms
+            | EldritchInvocationVoiceOfTheChainMaster
+            | EldritchInvocationWhispersOfTheGrave
+            | EldritchInvocationWitchSight => {
+                self.1
+                    .warlock_eldritch_invocation
                     .get_or_insert_with(Vec::new)
                     .push(option.as_index_str().to_string());
             }
