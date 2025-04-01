@@ -449,7 +449,7 @@ impl ChoosableCustomLevelFeature {
                     RangerFavoredEnemyTypeOozes,
                     RangerFavoredEnemyTypePlants,
                     RangerFavoredEnemyTypeUndead,
-                    RangerFavoredEnemyTypeHumanoids,
+                    // RangerFavoredEnemyTypeHumanoids,
                 ]]
             }
             ChoosableCustomLevelFeature::RangerTerrainType => {
