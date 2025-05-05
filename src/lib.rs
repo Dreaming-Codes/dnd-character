@@ -9,12 +9,73 @@ use anyhow::bail;
 use lazy_static::lazy_static;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
+use std::rc::Rc;
 
 use crate::abilities::Abilities;
 use crate::classes::Classes;
+
+#[cfg(feature = "serde")]
+mod abilities_score_serde {
+    use crate::abilities::Abilities;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    pub fn serialize<S>(
+        abilities: &Rc<RefCell<Abilities>>,
+        serializer: S,
+    ) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        abilities.borrow().serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Rc<RefCell<Abilities>>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let abilities = Abilities::deserialize(deserializer)?;
+        Ok(Rc::new(RefCell::new(abilities)))
+    }
+}
+
+#[cfg(feature = "serde")]
+mod classes_serde {
+    use crate::abilities::Abilities;
+    use crate::classes::Classes;
+    use serde::de::Error;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    pub fn serialize<S>(classes: &Classes, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        classes.serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(
+        deserializer: D,
+        abilities_ref: &Rc<RefCell<Abilities>>,
+    ) -> Result<Classes, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // First deserialize into a serde_json::Value
+        let value = serde_json::Value::deserialize(deserializer)
+            .map_err(|e| D::Error::custom(format!("Failed to deserialize classes: {}", e)))?;
+
+        // Use the custom deserializer that takes the shared abilities reference
+        Classes::deserialize_with_abilities(value, abilities_ref.clone())
+            .map_err(|e| D::Error::custom(format!("Failed to deserialize with abilities: {}", e)))
+    }
+}
 
 lazy_static! {
     pub static ref GRAPHQL_API_URL: String = std::env::var("DND_GRAPHQL_API_URL")
@@ -36,6 +97,7 @@ impl std::error::Error for UnexpectedAbility {}
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "serde", serde(from = "CharacterDeserializeHelper"))]
 pub struct Character {
     /// Indexes from https://www.dnd5eapi.co/api/classes/
     pub classes: Classes,
@@ -58,7 +120,8 @@ pub struct Character {
 
     pub money: u32,
 
-    pub abilities_score: Abilities,
+    #[cfg_attr(feature = "serde", serde(with = "abilities_score_serde"))]
+    pub abilities_score: Rc<RefCell<Abilities>>,
 
     //Health related stuff
     pub hp: u16,
@@ -73,6 +136,64 @@ pub struct Character {
 /// For parsing legacy support
 fn default_hit_dice() -> u16 {
     12
+}
+
+#[cfg(feature = "serde")]
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CharacterDeserializeHelper {
+    name: String,
+    age: u16,
+    race_index: String,
+    subrace_index: String,
+    alignment_index: String,
+    description: String,
+    background_index: String,
+    background_description: String,
+    experience_points: u32,
+    money: u32,
+    abilities_score: Abilities,
+    hp: u16,
+    #[serde(default = "default_hit_dice")]
+    hit_dice_result: u16,
+    inventory: HashMap<String, u16>,
+    other: Vec<String>,
+    #[serde(default)]
+    classes: serde_json::Value,
+}
+
+#[cfg(feature = "serde")]
+impl From<CharacterDeserializeHelper> for Character {
+    fn from(helper: CharacterDeserializeHelper) -> Self {
+        // Create the shared abilities reference
+        let abilities_score = Rc::new(RefCell::new(helper.abilities_score));
+
+        // Deserialize classes with the shared abilities reference
+        let classes =
+            match Classes::deserialize_with_abilities(helper.classes, abilities_score.clone()) {
+                Ok(classes) => classes,
+                Err(_) => Classes::default(),
+            };
+
+        Self {
+            classes,
+            name: helper.name,
+            age: helper.age,
+            race_index: helper.race_index,
+            subrace_index: helper.subrace_index,
+            alignment_index: helper.alignment_index,
+            description: helper.description,
+            background_index: helper.background_index,
+            background_description: helper.background_description,
+            experience_points: helper.experience_points,
+            money: helper.money,
+            abilities_score,
+            hp: helper.hp,
+            hit_dice_result: helper.hit_dice_result,
+            inventory: helper.inventory,
+            other: helper.other,
+        }
+    }
 }
 
 #[cfg(feature = "utoipa")]
@@ -138,8 +259,19 @@ impl Character {
         background_index: String,
         background_description: String,
     ) -> Self {
+        // Create the shared abilities reference
+        let abilities_score = Rc::new(RefCell::new(Abilities::default()));
+
+        // Create classes with the default implementation
+        let mut classes = Classes::new(main_class);
+
+        // Update all class properties to use the shared abilities reference
+        for class in classes.0.values_mut() {
+            class.1.abilities_modifiers = abilities_score.clone();
+        }
+
         Self {
-            classes: Classes::new(main_class),
+            classes,
             name,
             age,
             race_index,
@@ -152,7 +284,7 @@ impl Character {
             money: 0,
             inventory: HashMap::new(),
 
-            abilities_score: Abilities::default(),
+            abilities_score,
             hp: 0,
             hit_dice_result: 0,
             other: vec![],
@@ -164,7 +296,7 @@ impl Character {
         let first_class = self.classes.0.iter().next().unwrap();
         let class_name = first_class.0.as_str();
 
-        let abilities_score = self.compound_abilities();
+        let abilities_score = self.abilities_score.borrow();
 
         // Calculate the base armor class based on the class type
         let mut base = match class_name {
@@ -283,20 +415,9 @@ impl Character {
         }
     }
 
-    pub fn compound_abilities(&self) -> Abilities {
-        self.classes
-            .0
-            .values()
-            .map(|class| class.1.abilities_modifiers.clone())
-            .sum::<Abilities>()
-            + self.abilities_score.clone()
-    }
-
     /// Calculate the maximum HP of the character based on constitution modifier and hit dice result
     pub fn max_hp(&self) -> u16 {
-        let constitution_ability: AbilityScore = self.compound_abilities().constitution;
-
-        let constitution_modifier = constitution_ability.modifier(0);
+        let constitution_modifier = self.abilities_score.borrow().constitution.modifier(0);
 
         (constitution_modifier as i32)
             .saturating_mul(self.level().into())

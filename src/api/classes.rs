@@ -816,8 +816,9 @@ impl Class {
                 }
                 CustomLevelFeatureType::Sheet(feature) => match feature {
                     SheetLevelFeatureType::PrimalChampion => {
-                        self.1.abilities_modifiers.strength.score += 4;
-                        self.1.abilities_modifiers.constitution.score += 4;
+                        let mut abilities = self.1.abilities_modifiers.borrow_mut();
+                        abilities.strength.score += 4;
+                        abilities.constitution.score += 4;
                     }
                 },
                 Ignored => {}
@@ -1212,24 +1213,25 @@ impl Class {
     }
 
     fn increase_score(&mut self, option: ChoosableCustomLevelFeatureOption) {
+        let mut abilities = self.1.abilities_modifiers.borrow_mut();
         match option {
             ChoosableCustomLevelFeatureOption::StrengthPlusOne => {
-                self.1.abilities_modifiers.strength.score += 1;
+                abilities.strength.score += 1;
             }
             ChoosableCustomLevelFeatureOption::DexterityPlusOne => {
-                self.1.abilities_modifiers.dexterity.score += 1;
+                abilities.dexterity.score += 1;
             }
             ChoosableCustomLevelFeatureOption::ConstitutionPlusOne => {
-                self.1.abilities_modifiers.constitution.score += 1;
+                abilities.constitution.score += 1;
             }
             ChoosableCustomLevelFeatureOption::IntelligencePlusOne => {
-                self.1.abilities_modifiers.intelligence.score += 1;
+                abilities.intelligence.score += 1;
             }
             ChoosableCustomLevelFeatureOption::WisdomPlusOne => {
-                self.1.abilities_modifiers.wisdom.score += 1;
+                abilities.wisdom.score += 1;
             }
             ChoosableCustomLevelFeatureOption::CharismaPlusOne => {
-                self.1.abilities_modifiers.charisma.score += 1;
+                abilities.charisma.score += 1;
             }
             _ => {}
         }
