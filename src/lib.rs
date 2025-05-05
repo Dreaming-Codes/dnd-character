@@ -1,4 +1,4 @@
-[cfg(feature = "api")]
+#[cfg(feature = "api")]
 pub mod api;
 
 pub mod abilities;
@@ -23,10 +23,7 @@ mod abilities_score_serde {
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
     use std::sync::{Arc, Mutex};
 
-    pub fn serialize<S>(
-        abilities: &Arc<Mutex<Abilities>>,
-        serializer: S,
-    ) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(abilities: &Arc<Mutex<Abilities>>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
@@ -415,7 +412,12 @@ impl Character {
 
     /// Calculate the maximum HP of the character based on constitution modifier and hit dice result
     pub fn max_hp(&self) -> u16 {
-        let constitution_modifier = self.abilities_score.lock().unwrap().constitution.modifier(0);
+        let constitution_modifier = self
+            .abilities_score
+            .lock()
+            .unwrap()
+            .constitution
+            .modifier(0);
 
         (constitution_modifier as i32)
             .saturating_mul(self.level().into())
