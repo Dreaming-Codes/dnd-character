@@ -121,6 +121,7 @@ pub struct Character {
     pub money: u32,
 
     #[cfg_attr(feature = "serde", serde(with = "abilities_score_serde"))]
+    #[cfg_attr(feature = "utoipa", schema(value_type = Abilities))]
     pub abilities_score: Rc<RefCell<Abilities>>,
 
     //Health related stuff

@@ -91,6 +91,7 @@ pub struct ClassProperties {
     pub warlock_eldritch_invocation: Option<Vec<String>>,
     pub sorcerer_dragon_ancestor: Option<String>,
     #[cfg_attr(feature = "serde", serde(skip_serializing, skip_deserializing, default = "default_abilities_modifiers"))]
+    #[cfg_attr(feature = "utoipa", schema(ignore))]
     pub abilities_modifiers: Rc<RefCell<Abilities>>,
 }
 
