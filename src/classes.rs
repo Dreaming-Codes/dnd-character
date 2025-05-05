@@ -1,14 +1,13 @@
 use crate::abilities::Abilities;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::Hash;
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 // Default function for abilities_modifiers during deserialization
 #[cfg(feature = "serde")]
-fn default_abilities_modifiers() -> Rc<RefCell<Abilities>> {
-    Rc::new(RefCell::new(Abilities::default()))
+fn default_abilities_modifiers() -> Arc<Mutex<Abilities>> {
+    Arc::new(Mutex::new(Abilities::default()))
 }
 
 #[derive(Debug, Clone)]
@@ -92,7 +91,7 @@ pub struct ClassProperties {
     pub sorcerer_dragon_ancestor: Option<String>,
     #[cfg_attr(feature = "serde", serde(skip_serializing, skip_deserializing, default = "default_abilities_modifiers"))]
     #[cfg_attr(feature = "utoipa", schema(ignore))]
-    pub abilities_modifiers: Rc<RefCell<Abilities>>,
+    pub abilities_modifiers: Arc<Mutex<Abilities>>,
 }
 
 /// The key is the index of the class from https://www.dnd5eapi.co/api/classes
@@ -164,7 +163,7 @@ impl Classes {
     #[cfg(feature = "serde")]
     pub fn deserialize_with_abilities(
         value: serde_json::Value,
-        shared_abilities: Rc<RefCell<Abilities>>,
+        shared_abilities: Arc<Mutex<Abilities>>,
     ) -> Result<Self, serde_json::Error> {
         let mut result = Classes::default();
         

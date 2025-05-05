@@ -816,7 +816,7 @@ impl Class {
                 }
                 CustomLevelFeatureType::Sheet(feature) => match feature {
                     SheetLevelFeatureType::PrimalChampion => {
-                        let mut abilities = self.1.abilities_modifiers.borrow_mut();
+                        let mut abilities = self.1.abilities_modifiers.lock().unwrap();
                         abilities.strength.score += 4;
                         abilities.constitution.score += 4;
                     }
@@ -1213,7 +1213,7 @@ impl Class {
     }
 
     fn increase_score(&mut self, option: ChoosableCustomLevelFeatureOption) {
-        let mut abilities = self.1.abilities_modifiers.borrow_mut();
+        let mut abilities = self.1.abilities_modifiers.lock().unwrap();
         match option {
             ChoosableCustomLevelFeatureOption::StrengthPlusOne => {
                 abilities.strength.score += 1;

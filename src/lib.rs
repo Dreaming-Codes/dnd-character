@@ -9,11 +9,10 @@ use anyhow::bail;
 use lazy_static::lazy_static;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
-use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 use crate::abilities::Abilities;
 use crate::classes::Classes;
@@ -22,25 +21,24 @@ use crate::classes::Classes;
 mod abilities_score_serde {
     use crate::abilities::Abilities;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    use std::cell::RefCell;
-    use std::rc::Rc;
+    use std::sync::{Arc, Mutex};
 
     pub fn serialize<S>(
-        abilities: &Rc<RefCell<Abilities>>,
+        abilities: &Arc<Mutex<Abilities>>,
         serializer: S,
     ) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        abilities.borrow().serialize(serializer)
+        abilities.lock().unwrap().serialize(serializer)
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Rc<RefCell<Abilities>>, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Arc<Mutex<Abilities>>, D::Error>
     where
         D: Deserializer<'de>,
     {
         let abilities = Abilities::deserialize(deserializer)?;
-        Ok(Rc::new(RefCell::new(abilities)))
+        Ok(Arc::new(Mutex::new(abilities)))
     }
 }
 
@@ -50,8 +48,7 @@ mod classes_serde {
     use crate::classes::Classes;
     use serde::de::Error;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    use std::cell::RefCell;
-    use std::rc::Rc;
+    use std::sync::{Arc, Mutex};
 
     pub fn serialize<S>(classes: &Classes, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -62,7 +59,7 @@ mod classes_serde {
 
     pub fn deserialize<'de, D>(
         deserializer: D,
-        abilities_ref: &Rc<RefCell<Abilities>>,
+        abilities_ref: &Arc<Mutex<Abilities>>,
     ) -> Result<Classes, D::Error>
     where
         D: Deserializer<'de>,
@@ -122,7 +119,7 @@ pub struct Character {
 
     #[cfg_attr(feature = "serde", serde(with = "abilities_score_serde"))]
     #[cfg_attr(feature = "utoipa", schema(value_type = Abilities))]
-    pub abilities_score: Rc<RefCell<Abilities>>,
+    pub abilities_score: Arc<Mutex<Abilities>>,
 
     //Health related stuff
     pub hp: u16,
@@ -167,7 +164,7 @@ struct CharacterDeserializeHelper {
 impl From<CharacterDeserializeHelper> for Character {
     fn from(helper: CharacterDeserializeHelper) -> Self {
         // Create the shared abilities reference
-        let abilities_score = Rc::new(RefCell::new(helper.abilities_score));
+        let abilities_score = Arc::new(Mutex::new(helper.abilities_score));
 
         // Deserialize classes with the shared abilities reference
         let classes =
@@ -261,7 +258,7 @@ impl Character {
         background_description: String,
     ) -> Self {
         // Create the shared abilities reference
-        let abilities_score = Rc::new(RefCell::new(Abilities::default()));
+        let abilities_score = Arc::new(Mutex::new(Abilities::default()));
 
         // Create classes with the default implementation
         let mut classes = Classes::new(main_class);
@@ -297,7 +294,7 @@ impl Character {
         let first_class = self.classes.0.iter().next().unwrap();
         let class_name = first_class.0.as_str();
 
-        let abilities_score = self.abilities_score.borrow();
+        let abilities_score = self.abilities_score.lock().unwrap();
 
         // Calculate the base armor class based on the class type
         let mut base = match class_name {
@@ -418,7 +415,7 @@ impl Character {
 
     /// Calculate the maximum HP of the character based on constitution modifier and hit dice result
     pub fn max_hp(&self) -> u16 {
-        let constitution_modifier = self.abilities_score.borrow().constitution.modifier(0);
+        let constitution_modifier = self.abilities_score.lock().unwrap().constitution.modifier(0);
 
         (constitution_modifier as i32)
             .saturating_mul(self.level().into())
