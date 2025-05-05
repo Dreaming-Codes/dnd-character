@@ -1,4 +1,4 @@
-#[cfg(feature = "api")]
+:[cfg(feature = "api")]
 pub mod api;
 
 pub mod abilities;
@@ -265,7 +265,7 @@ impl Character {
 
         // Update all class properties to use the shared abilities reference
         for class in classes.0.values_mut() {
-            class.1.abilities_modifiers = abilities_score.clone();
+            class.1.abilities = abilities_score.clone();
         }
 
         Self {

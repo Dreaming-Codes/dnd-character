@@ -89,9 +89,18 @@ pub struct ClassProperties {
     pub sorcerer_metamagic: Option<Vec<String>>,
     pub warlock_eldritch_invocation: Option<Vec<String>>,
     pub sorcerer_dragon_ancestor: Option<String>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing, skip_deserializing, default = "default_abilities_modifiers"))]
+    #[deprecated]
+    pub abilities_modifiers: Abilities,
+    #[cfg_attr(
+        feature = "serde",
+        serde(
+            skip_serializing,
+            skip_deserializing,
+            default = "default_abilities_modifiers"
+        )
+    )]
     #[cfg_attr(feature = "utoipa", schema(ignore))]
-    pub abilities_modifiers: Arc<Mutex<Abilities>>,
+    pub abilities: Arc<Mutex<Abilities>>,
 }
 
 /// The key is the index of the class from https://www.dnd5eapi.co/api/classes
@@ -150,7 +159,7 @@ pub struct Classes(pub HashMap<String, Class>);
 impl<'de> Deserialize<'de> for Classes {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
-        D: serde::Deserializer<'de>
+        D: serde::Deserializer<'de>,
     {
         // This is a placeholder since we'll use the custom deserializer
         // This won't be used directly, but helps with derive macros
@@ -166,28 +175,28 @@ impl Classes {
         shared_abilities: Arc<Mutex<Abilities>>,
     ) -> Result<Self, serde_json::Error> {
         let mut result = Classes::default();
-        
+
         // Parse the JSON map of classes
-        let class_map = value.as_object()
+        let class_map = value
+            .as_object()
             .ok_or_else(|| serde::de::Error::custom("Expected object for Classes"))?;
-        
+
         for (key, value) in class_map {
             // Deserialize the basic class properties without abilities
-            let mut class_properties: ClassProperties = serde_json::from_value(
-                value.get(1).cloned().unwrap_or(serde_json::Value::Null)
-            )?;
-            
+            let mut class_properties: ClassProperties =
+                serde_json::from_value(value.get(1).cloned().unwrap_or(serde_json::Value::Null))?;
+
             // Set the shared abilities reference
-            class_properties.abilities_modifiers = shared_abilities.clone();
-            
+            class_properties.abilities = shared_abilities.clone();
+
             // Create the class entry with the class index
             let index = key.clone();
             let class = Class(index, class_properties);
-            
+
             // Add to the map
             result.0.insert(key.clone(), class);
         }
-        
+
         Ok(result)
     }
 
@@ -214,7 +223,7 @@ impl Classes {
             spell_casting,
             ..ClassProperties::default()
         };
-        
+
         // The abilities_modifiers will be set externally when creating from Character
 
         classes
