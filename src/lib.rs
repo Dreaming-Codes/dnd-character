@@ -1,4 +1,4 @@
-:[cfg(feature = "api")]
+[cfg(feature = "api")]
 pub mod api;
 
 pub mod abilities;
