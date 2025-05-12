@@ -89,8 +89,6 @@ pub struct ClassProperties {
     pub sorcerer_metamagic: Option<Vec<String>>,
     pub warlock_eldritch_invocation: Option<Vec<String>>,
     pub sorcerer_dragon_ancestor: Option<String>,
-    #[deprecated]
-    pub abilities_modifiers: Abilities,
     #[cfg_attr(
         feature = "serde",
         serde(
