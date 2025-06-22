@@ -1,9 +1,8 @@
 use cynic::http::CynicReqwestError;
 use std::collections::HashMap;
 
-use crate::api::classes::LevelSpellcasting;
 use crate::Character;
-use serde_json::json;
+use crate::api::classes::LevelSpellcasting;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ApiError {
@@ -11,8 +10,6 @@ pub enum ApiError {
     Reqwest(#[from] CynicReqwestError),
     #[error("Schema error")]
     Schema,
-    #[error("Toml serialization error")]
-    TomlError(#[from] toml::ser::Error),
 }
 
 //noinspection RsCompileErrorMacro
@@ -32,8 +29,8 @@ mod race_query {
     use super::schema;
     use crate::api::shared::ApiError;
     use crate::{Character, GRAPHQL_API_URL};
-    use cynic::http::ReqwestExt;
     use cynic::QueryBuilder;
+    use cynic::http::ReqwestExt;
     use reqwest::Client;
 
     #[derive(cynic::QueryVariables, Debug)]
@@ -100,32 +97,24 @@ impl Character {
 
     #[cfg(feature = "serde")]
     pub async fn rich_print(&self) -> Result<String, ApiError> {
+        use serde_json::json;
+
         let spellcasting_slots = self.get_spellcasting_slots().await?;
         let features = self.get_features(true).await?;
 
-        // Convert `self` to TOML
-        let mut character = toml::Value::try_from(self)?;
+        let mut character = json!(self);
 
         if !spellcasting_slots.is_empty() {
-            character.as_table_mut().unwrap().insert(
-                "spellcasting_slots".to_string(),
-                toml::Value::try_from(spellcasting_slots)?,
-            );
+            character["spellcasting_slots"] = json!(spellcasting_slots);
         }
 
-        character
-            .as_table_mut()
-            .unwrap()
-            .insert("max_hp".to_string(), toml::Value::try_from(self.max_hp())?);
+        character["max_hp"] = json!(self.max_hp());
 
         if !features.is_empty() {
-            character
-                .as_table_mut()
-                .unwrap()
-                .insert("features".to_string(), toml::Value::try_from(features)?);
+            character["features"] = json!(features);
         }
 
-        Ok(toml::to_string_pretty(&character)?)
+        Ok(serde_json::to_string_pretty(&character).unwrap())
     }
 
     /// Call this method every day to reset daily vars
