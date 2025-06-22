@@ -96,7 +96,7 @@ impl Character {
     }
 
     #[cfg(feature = "serde")]
-    pub async fn rich_print(&self) -> Result<String, ApiError> {
+    pub async fn rich_data(&self) -> Result<serde_json::Value, ApiError> {
         use serde_json::json;
 
         let spellcasting_slots = self.get_spellcasting_slots().await?;
@@ -114,7 +114,7 @@ impl Character {
             character["features"] = json!(features);
         }
 
-        Ok(serde_json::to_string_pretty(&character).unwrap())
+        Ok(character)
     }
 
     /// Call this method every day to reset daily vars
